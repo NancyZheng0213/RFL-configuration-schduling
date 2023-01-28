@@ -26,7 +26,7 @@ def readScatterData(data):
 """
 前沿面比较图
 """
-with open("E:\\JavaProjects\\configuration and scheduling of MRFL\\nsgaii\\sourse\\case3\\ParetoFront.txt") as f:
+with open("E:\\JavaProjects\\configuration and scheduling of MRFL\\nsgaii\\sourse\\ParetoFront.txt") as f:
     lines = f.readlines()
     line = lines[0]
     scatterData = json.loads(line)
