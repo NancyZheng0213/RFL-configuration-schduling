@@ -63,7 +63,7 @@ public class Pop {
     }
 
     /**
-     * 根据每个个体的 fitness 进行排序
+     * 根据每个个体的 fitness 从小到大进行排序
      */
     public ArrayList<Individual> SortFitness() {
         ArrayList<Individual> list = new ArrayList<>(Arrays.asList(this.individuals));
@@ -71,6 +71,38 @@ public class Pop {
             @Override
             public int compare(Individual individual1, Individual individual2) {
                 return individual1.getFitness() > individual2.getFitness() ? 1 : (individual1.getFitness() == individual2.getFitness() ? 0 : -1);
+            }
+        });
+
+        return list;
+    }
+
+    /**
+     * 根据每个个体的 Totaldelay 从小到大排序
+     * @return
+     */
+    public ArrayList<Individual> SortTotaldelay() {
+        ArrayList<Individual> list = new ArrayList<>(Arrays.asList(this.individuals));
+        Collections.sort(list, new Comparator<Individual>() {
+            @Override
+            public int compare(Individual individual1, Individual individual2) {
+                return individual1.getdecode().getTotalDelay() > individual2.getdecode().getTotalDelay() ? 1 : (individual1.getdecode().getTotalDelay() == individual2.getdecode().getTotalDelay() ? 0 : -1);
+            }
+        });
+
+        return list;
+    }
+
+    /**
+     * 根据每个个体的utilization从大到小排序
+     * @return
+     */
+    public ArrayList<Individual> SortUtilization() {
+        ArrayList<Individual> list = new ArrayList<>(Arrays.asList(this.individuals));
+        Collections.sort(list, new Comparator<Individual>() {
+            @Override
+            public int compare(Individual individual1, Individual individual2) {
+                return individual1.getdecode().getUtilization() > individual2.getdecode().getUtilization() ? -1 : (individual1.getdecode().getUtilization() == individual2.getdecode().getUtilization() ? 0 : 1);
             }
         });
 
@@ -104,5 +136,8 @@ public class Pop {
     }
     public Individual getindividual(int i) {
         return this.individuals[i];
+    }
+    public Individual[] getIndividuals() {
+        return this.individuals;
     }
 }

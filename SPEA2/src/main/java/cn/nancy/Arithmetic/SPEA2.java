@@ -122,57 +122,84 @@ public class SPEA2 {
             pop.setR(i, r);
         }
         // 计算 D 和适应度
+        CalculateDensity(pop);
         for (int i = 0; i < pop.getpopNum(); i++) {
-            pop.setD(i, CalculateDensity(i, pop));
             pop.setFitness(i, pop.getindividual(i).getD() + pop.getindividual(i).getR());
         }
     }
 
     /**
-     * 计算 pop 中第 i 个个体的密度值，返回 D 值
+     * 计算 pop 种群每个个体的密度值，返回 D 值
      * 
      * <p>采用 k-th 近邻法，引入了 density information 区分相同 raw fitness value 的个体
      * <p>SPEA2中的 density estimation technique 是一种适应性的K近邻方法，任意点的 density 是 k 个邻居点的距离函数。这篇文章直接取第 k 个邻居的距离倒数作为 density estimate。
      */
-    public double CalculateDensity(int i, Pop pop) {
+    public void CalculateDensity(Pop pop) {
         // 为了方便变邻域搜索时计算适应度，此处跳过变邻域中规模小于 k 的种群
         if (this.k <= pop.getpopNum()) {
-            // 无量纲化
-            double[] utilization = new double[pop.getpopNum()];
-            double[] totalDelay = new double[pop.getpopNum()];
-            double maxutilization = -1;
-            double maxtotaldelay = -1;
-            for (int index = 0; index < totalDelay.length; index++) {
-                utilization[index] = pop.getindividual(index).getdecode().getUtilization();
-                if (utilization[index] > maxutilization) {
-                    maxutilization = utilization[index];
-                }
-                totalDelay[index] = pop.getindividual(index).getdecode().getTotalDelay();
-                if (totalDelay[index] > maxtotaldelay) {
-                    maxtotaldelay = totalDelay[index];
-                }
+            // totaldelay 从小到大排序，找出最大最小目标值
+            ArrayList<Individual> sortlist = pop.SortTotaldelay();
+            double maxtotaldelay = sortlist.get(sortlist.size() - 1).getdecode().getTotalDelay();
+            double mintotaldelay = sortlist.get(1).getdecode().getTotalDelay();
+            double difftotodelay = maxtotaldelay - mintotaldelay;
+            sortlist.get(0).setD(
+                2 * (sortlist.get(1).getdecode().getTotalDelay() - sortlist.get(0).getdecode().getTotalDelay()) / difftotodelay
+            );
+            sortlist.get(sortlist.size() - 1).setD(
+                2 * (sortlist.get(sortlist.size() - 1).getdecode().getTotalDelay() - sortlist.get(sortlist.size() - 2).getdecode().getTotalDelay()) / difftotodelay
+            );
+            for (int i = 1; i < sortlist.size() - 1; i++) {
+                sortlist.get(i).setD(
+                    (sortlist.get(i + 1).getdecode().getTotalDelay() - sortlist.get(i - 1).getdecode().getTotalDelay()) / difftotodelay
+                );
             }
-            for (int index = 0; index < totalDelay.length; index++) {
-                utilization[index] /= maxutilization;
-                totalDelay[index] /= maxtotaldelay;
-            }
-            // 计算 σ
-            ArrayList<Double> xigemaList = new ArrayList<>();
-            for (int index = 0; index < totalDelay.length; index++) {
-                if (index != i) {
-                    double xigema = Math.sqrt(
-                        Math.pow((utilization[i] - utilization[index]), 2) + Math.pow((totalDelay[i] - utilization[index]), 2)
-                    );
-                    xigemaList.add(xigema);
+            // utilization 从大到小排序，找出最大最小目标值
+            Collections.sort(sortlist, new Comparator<Individual>() {
+                @Override
+                public int compare(Individual i, Individual j) {
+                    if (i.getdecode().getUtilization() < j.getdecode().getUtilization()) {
+                        return 1;
+                    } else if(i.getdecode().getUtilization() == j.getdecode().getUtilization()) {
+                        return 0;
+                    } else {
+                        return -1;
+                    }
                 }
+            });
+            double maxutilization = sortlist.get(0).getdecode().getUtilization();;
+            double minutilization = sortlist.get(sortlist.size()-1).getdecode().getUtilization();
+            double diffutilization = maxutilization - minutilization;
+            sortlist.get(0).setD(
+                sortlist.get(0).getD() + 2 * (sortlist.get(0).getdecode().getUtilization() - sortlist.get(1).getdecode().getUtilization()) / diffutilization
+            );
+            sortlist.get(sortlist.size() - 1).setD(
+                sortlist.get(0).getD() + 2 * (sortlist.get(sortlist.size() - 2).getdecode().getUtilization() - sortlist.get(sortlist.size() - 1).getdecode().getUtilization()) / diffutilization
+            );
+            for (int i = 1; i < sortlist.size() - 1; i++) {
+                sortlist.get(i).setD(
+                    sortlist.get(0).getD() + (sortlist.get(i - 1).getdecode().getUtilization() - sortlist.get(i + 1).getdecode().getUtilization()) / diffutilization
+                );
             }
-            // 通过比较器实现 σ 的排序
-            Collections.sort(xigemaList);
-            pop.getindividual(i).setxigema(xigemaList.get(this.k));
-
-            return 1 / (xigemaList.get(this.k) + 2);
-        } else {
-            return 0;
+            
+            // 通过比较器实现 D 的排序
+            Collections.sort(sortlist, new Comparator<Individual>() {
+                @Override
+                public int compare(Individual i, Individual j) {
+                    if (i.getD() < j.getD()) {
+                        return -1;
+                    } else if(i.getD() == j.getD()) {
+                        return 0;
+                    } else {
+                        return 1;
+                    }
+                }
+            });
+            Pop popsort = new Pop(pop.getpopNum());
+            for (int i = 0; i < pop.getpopNum(); i++) {
+                popsort.setIndividual(i, sortlist.get(i));
+                popsort.getindividual(i).setxigema(popsort.getindividual(i).getD());
+            }
+            pop = popsort;
         }
     }
 

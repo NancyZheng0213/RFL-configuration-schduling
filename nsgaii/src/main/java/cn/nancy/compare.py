@@ -26,12 +26,12 @@ def readScatterData(data):
 """
 前沿面比较图
 """
-with open("E:\\JavaProjects\\configuration and scheduling of MRFL\\nsgaii\\sourse\\ParetoFront.txt") as f:
+with open("E:\\JavaProjects\\configuration and scheduling of MRFL\\SPEA2\\sourse\\ParetoFront.txt") as f:
     lines = f.readlines()
     line = lines[0]
     scatterData = json.loads(line)
     NSGAIITotalDelay, NSGAIIUtilization = readScatterData(scatterData)
-with open("E:\\JavaProjects\\configuration and scheduling of MRFL\\SPEA2\\sourse\\ParetoFront.txt") as f:
+with open("E:\\JavaProjects\\configuration and scheduling of MRFL\\SPEA2\\sourse\\Variation1_merge_2\\ParetoFront.txt") as f:
     lines = f.readlines()
     line = lines[0]
     scatterData = json.loads(line)
