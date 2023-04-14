@@ -149,9 +149,9 @@ if __name__ == '__main__':
     #         ))
     #         fig.show()
 
-    for i in range(1):
+    for i in range(2,3):
         # %% 画散点图
-        p = ("E:\\JavaProjects\\zhengnanxi\\scheduling_of_rfl\\result\\case1_time%d\\spea2_1" % (i+1))
+        p = ("E:\\JavaProjects\\configuration_and_scheduling_of_MRFL\\SPEA2\\sourse\\case%d" % (i+1))
         allTotalDelay, allUtilization = readScatterData(p + "\\popObj.txt")
         TotalDelay, Utilization = readScatterData(p + "\\ParetoFront.txt")
         # with open(p + "\\popObj.txt") as f:
@@ -164,16 +164,17 @@ if __name__ == '__main__':
         #     line = lines[0]
         #     scatterData = json.loads(line)
         #     TotalDelay, Utilization = readScatterData(scatterData)
-        fig = plt.figure(i+1, figsize=(4,3.2))
-        plt.rcParams['font.sans-serif'] = ['SimHei'] #显示中文
-        plt.scatter(allTotalDelay, allUtilization, s=15, label='种群解')
-        plt.scatter(TotalDelay, Utilization, color='C1', s=20, label='Pareto解')
-        plt.xlabel("总拖期时间/min", fontdict={'size': 12}, fontproperties='SimHei')
-        plt.ylabel("平均设备利用率/%", fontdict={'size': 12}, fontproperties='SimHei')
-        plt.title("算法解散点图", fontdict={'size': 14}, fontproperties='SimHei')
-        plt.legend(loc='best')
+        fig = plt.figure(i+1, figsize=(3,3), constrained_layout=True)
+        plt.scatter(allTotalDelay, allUtilization, s=15, label='population')
+        plt.scatter(TotalDelay, Utilization, color='C1', s=20, label='archive')
+        plt.xlabel("total delay/min", fontdict={'size': 10}, fontproperties='Arial')
+        plt.ylabel("machine utilization/%", fontdict={'size': 10}, fontproperties='Arial')
+        # plt.title("算法解散点图", fontdict={'size': 10}, fontproperties='Arial')
+        plt.legend(loc='best', fontsize=9)
+        plt.ticklabel_format(style='sci', scilimits=(0,0), axis='x', useMathText=True)
         plt.grid()
-        plt.savefig(p + "\\解散点图.png", format='png')
+        plt.savefig(p + "\\解散点图.jpg", format='jpg', dpi=300)
+        plt.show()
 
         # %% 画迭代曲线图
         utilization = []
@@ -202,7 +203,7 @@ if __name__ == '__main__':
             for line in f.readlines():
                 toptotaldelay.append(json.loads(line))
         fig = plt.figure(2*(i+1), figsize=(4,2))
-        # plt.rcParams['font.sans-serif'] = ['SimHei'] #显示中文
+        # plt.rcParams['font.sans-serif'] = ['Arial'] #显示中文
         # 绘制利用率
         ax1 = fig.add_subplot(111)
         line1 = ax1.plot(range(0,len(utilization)), utilization, color='C0', linestyle='--',label="average utilization")
@@ -252,15 +253,15 @@ if __name__ == '__main__':
     # #     scatterData = json.loads(line)
     # #     TotalDelay, Utilization = readScatterData(scatterData)
     # fig = plt.figure(constrained_layout=True, figsize=(8,5))
-    # # plt.rcParams['font.sans-serif'] = ['SimHei'] #显示中文
+    # # plt.rcParams['font.sans-serif'] = ['Arial'] #显示中文
     # gs = fig.add_gridspec(2, 3)
     # # 全局解
     # ax1 = fig.add_subplot(gs[0:,0:2])
     # ax1.scatter(allTotalDelay, allUtilization, s=15, color='C0', label='population')
     # ax1.scatter(TotalDelay, Utilization, color='C1', s=20, label='Pareto solution')
     # ax1.tick_params(labelsize=14)
-    # # ax1.set_xlabel("总拖期时间/min", fontdict={'size': 12}, fontproperties='SimHei')
-    # # ax1.set_ylabel("平均设备利用率/%", fontdict={'size': 12}, fontproperties='SimHei')
+    # # ax1.set_xlabel("总拖期时间/min", fontdict={'size': 12}, fontproperties='Arial')
+    # # ax1.set_ylabel("平均设备利用率/%", fontdict={'size': 12}, fontproperties='Arial')
     # ax1.set_xlabel("total delay/min", fontdict={'size': 15})
     # ax1.set_ylabel("average utilization/%", fontdict={'size': 15})
     # ax1.legend(loc=3, fontsize=14, edgecolor='C0', facecolor='0.6', framealpha=0.3, handletextpad=0, labelspacing=0.2, borderpad=0.2)
