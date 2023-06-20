@@ -47,7 +47,7 @@ public class DataStore {
     }
 
     /**
-     * 写入 csv，续写
+     * 写入 csv，在下一行续写
      * @param data
      * @param filename
      */

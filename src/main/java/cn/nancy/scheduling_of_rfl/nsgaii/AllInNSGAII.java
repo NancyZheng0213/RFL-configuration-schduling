@@ -2,10 +2,11 @@ package cn.nancy.scheduling_of_rfl.nsgaii;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.concurrent.Callable;
 
 import cn.nancy.scheduling_of_rfl.*;
 
-public class AllInNSGAII extends Thread {
+public class AllInNSGAII implements Callable<String> {
     /**
      * 记录运行时间，单位：s
      */
@@ -65,10 +66,10 @@ public class AllInNSGAII extends Thread {
     }
 
     @Override
-    public void run() {
+    public String call() throws Exception{
     	System.out.println(
     			"\033[32m" + String.join(" -", Collections.nCopies(11, " -"))
-    			+ " NSGAII start \tMaxIteration: " + this.MaxIteration
+    			+ " NSGAII_" + p.substring(p.length() - 1) + " start \tMaxIteration: " + this.MaxIteration
     			+ ", Popsize: " + this.popsize
     			+ String.join(" -", Collections.nCopies(11, " -")) + "\t\t\033[0m");
         double tOfA = 0;
@@ -84,9 +85,9 @@ public class AllInNSGAII extends Thread {
             // Perform nondominated sorting of parent population. categorize population into several fronts with different ranks.
             nsgaii.NondominatedRank();
             // Generate offspring population
-            Pop childPop = nsgaii.Variation(qus);
+            PopofNSGAII childPop = (PopofNSGAII) nsgaii.Variation(p.substring(p.length() - 1), nsgaii.getPop(), qus);
             // Combine parent population and offspring population to form a combined population.
-            nsgaii.setPopulation(nsgaii.getMergePop(childPop, nsgaii.getPop()));
+            nsgaii.setPop(nsgaii.getMergePop(childPop, nsgaii.getPop()));
             nsgaii.getPop().decode(qus.getMachineTime(), qus.getDemand(), qus.getSetupTime(), qus.getDueDays());
             // Perform nondominated sorting to obtain different fronts and compute crowding distances of the combined population.
             nsgaii.NondominatedRank();
@@ -130,7 +131,7 @@ public class AllInNSGAII extends Thread {
             besttotaldelay = bottomtOfA;
             bestutilization = topuOfA; 
             if (this.lastiteration % 10 == 0) {
-            	System.out.println("\033[32mNSGAII\t\t\033[0miteration " + this.lastiteration + "\t\tbest total delay: " + bottomtOfA + "\t\tbest utilization: " + topuOfA);
+            	System.out.println("\033[32mNSGAII_" + p.substring(p.length() - 1) + " \t\t\033[0miteration " + this.lastiteration + "\t\tbest total delay: " + bottomtOfA + "\t\tbest utilization: " + topuOfA);
 			}
             this.lastiteration++;
         }
@@ -171,8 +172,10 @@ public class AllInNSGAII extends Thread {
         // }
         // System.out.println("\t\tbest total delay: " + bottomtOfA + "\t\tbest utilization: " + topuOfA);
 
-        if (!this.isAlive()) {
-            System.out.println("\033[33mNSGAII\t\t运行时间：" + this.runningtime/1000 + "s  \t迭代代数：" + this.lastiteration + "  \tbest total delay: " + this.besttotaldelay + "  \tbest utilization: " + this.bestutilization + "\033[0m");
-        }
+        // if (!this.isAlive()) {
+        //     System.out.println("\033[33mNSGAII" + p.substring(p.length() - 1) + "\t\t运行时间：" + this.runningtime/1000 + "s  \t迭代代数：" + this.lastiteration + "  \tbest total delay: " + this.besttotaldelay + "  \tbest utilization: " + this.bestutilization + "\033[0m");
+        // }
+
+        return "\033[33mNSGAII_" + p.substring(p.length() - 1) + "\t\t运行时间：" + this.runningtime/1000 + "s  \t迭代代数：" + this.lastiteration + "  \tbest total delay: " + this.besttotaldelay + "  \tbest utilization: " + this.bestutilization + "\033[0m";
     }
 }

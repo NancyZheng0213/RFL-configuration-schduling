@@ -93,12 +93,12 @@ public class Experiment_of_SPEA2 {
                     iter++;
                 } else {
                     int ParetoNum = 0;
-                    for (int j = 0; j < speaii.getarchive().getpopNum(); j++) {
+                    for (int j = 0; j < speaii.getarchive().getPopsize(); j++) {
                         if (speaii.getarchive(j).getFitness() < 1) {
                             ParetoNum++;
-                            Individual individual = speaii.getarchive(j);
-                            double u = individual.getdecode().getUtilization();
-                            double t = individual.getdecode().getTotalDelay();
+                            IndividualofSPEA2 individual = speaii.getarchive(j);
+                            double u = individual.getDecode().getUtilization();
+                            double t = individual.getDecode().getTotalDelay();
                             avgtotaldelay += t;
                             avgutilization += u;
                             // 记录最佳延期时间

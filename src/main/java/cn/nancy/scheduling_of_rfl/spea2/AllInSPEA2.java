@@ -2,10 +2,11 @@ package cn.nancy.scheduling_of_rfl.spea2;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.concurrent.Callable;
 
 import cn.nancy.scheduling_of_rfl.*;
 
-public class AllInSPEA2 extends Thread {
+public class AllInSPEA2 implements Callable<String> {
     /**
      * 记录运行时间，单位：s
      */
@@ -74,10 +75,10 @@ public class AllInSPEA2 extends Thread {
     }
 
     @Override
-    public void run() {
+    public String call() throws Exception{
     	System.out.println(
     			"\033[32m" + String.join(" -", Collections.nCopies(11, " -"))
-    			+ " SPEA2_" + p.substring(p.length() - 1)
+    			+ " SPEA2"
     			+ " start \tMaxIteration: " + this.MaxIteration
     			+ ", Popsize: " + this.popNum
     			+ String.join(" -", Collections.nCopies(11, " -")) + "\t\t\033[0m");
@@ -119,9 +120,9 @@ public class AllInSPEA2 extends Thread {
             toptOfM = Double.MIN_VALUE;
             bottomuOfM = Double.MAX_VALUE;
             
-            for (int i = 0; i < speaii.getarchive().getpopNum(); i++) {
-                double u = speaii.getarchive(i).getdecode().getUtilization();
-                double t = speaii.getarchive(i).getdecode().getTotalDelay();
+            for (int i = 0; i < speaii.getarchive().getPopsize(); i++) {
+                double u = speaii.getarchive(i).getDecode().getUtilization();
+                double t = speaii.getarchive(i).getDecode().getTotalDelay();
                 tOfA += t;
                 uOfA += u;
                 if (u > topuOfA) {
@@ -137,8 +138,8 @@ public class AllInSPEA2 extends Thread {
                     toptOfA = t;
                 }
             }
-            tOfA /= speaii.getarchive().getpopNum();
-            uOfA /= speaii.getarchive().getpopNum();
+            tOfA /= speaii.getarchive().getPopsize();
+            uOfA /= speaii.getarchive().getPopsize();
             DataStore.writefile(uOfA + "", p + "\\uOfA.txt");
             DataStore.writefile(tOfA + "", p + "\\tOfA.txt");
             DataStore.writefile(topuOfA + "", p + "\\topuOfA.txt");
@@ -146,9 +147,9 @@ public class AllInSPEA2 extends Thread {
             DataStore.writefile(bottomuOfA + "", p + "\\bottomuOfA.txt");
             DataStore.writefile(toptOfA + "", p + "\\toptOfA.txt");
             
-            for (int i = 0; i < speaii.getmergePop().getpopNum(); i++) {
-                double u = speaii.getmergePop(i).getdecode().getUtilization();
-                double t = speaii.getmergePop(i).getdecode().getTotalDelay();
+            for (int i = 0; i < speaii.getmergePop().getPopsize(); i++) {
+                double u = speaii.getmergePop(i).getDecode().getUtilization();
+                double t = speaii.getmergePop(i).getDecode().getTotalDelay();
                 tOfM += t;
                 uOfM += u;
                 if (u > topuOfM) {
@@ -164,8 +165,8 @@ public class AllInSPEA2 extends Thread {
                     toptOfM = t;
                 }
             }
-            tOfM /= speaii.getmergePop().getpopNum();
-            uOfM /= speaii.getmergePop().getpopNum();
+            tOfM /= speaii.getmergePop().getPopsize();
+            uOfM /= speaii.getmergePop().getPopsize();
             DataStore.writefile(uOfM + "", p + "\\uOfM.txt");
             DataStore.writefile(tOfM + "", p + "\\tOfM.txt");
             DataStore.writefile(topuOfM + "", p + "\\topuOfM.txt");
@@ -179,7 +180,7 @@ public class AllInSPEA2 extends Thread {
             // System.out.println("iteration " + (iter+1) + "\t\tbest total delay: " + bottomtOfA + "\t\tbest utilization: " + topuOfA);
             if (! speaii.TerminateIteration(this.lastiteration)) {
             	if (this.lastiteration % 10 == 0) {
-            		System.out.println("\033[32mSPEA2_" + p.substring(p.length() - 1) + "\t\t\033[0miteration "
+            		System.out.println("\033[32mSPEA2" + " \t\t\t\033[0miteration "
                     + this.lastiteration + "\t\tbest total delay: " + bottomtOfA + "\t\tbest utilization: " + topuOfA);
 				}
                 this.lastiteration++;
@@ -193,10 +194,10 @@ public class AllInSPEA2 extends Thread {
 
         long endTime = System.currentTimeMillis();    //获取结束时间
 
-        for (int i = 0; i < speaii.getarchive().getpopNum(); i++) {
+        for (int i = 0; i < speaii.getarchive().getPopsize(); i++) {
             ArrayList<Object> objective =  new ArrayList<>();
-            objective.add(speaii.getarchive(i).getdecode().getTotalDelay());
-            objective.add(speaii.getarchive(i).getdecode().getUtilization());
+            objective.add(speaii.getarchive(i).getDecode().getTotalDelay());
+            objective.add(speaii.getarchive(i).getDecode().getUtilization());
             DataStore.writefile("{\"" + (i + 1) + "\":" + objective + "}", p + "\\archiveObj.txt");
             if (speaii.getarchive(i).getR() == 0) {
                 // objectiveMap.put(i + 1, objective);
@@ -205,10 +206,10 @@ public class AllInSPEA2 extends Thread {
             }
         }
 
-        for (int i = 0; i < speaii.getpop().getpopNum(); i++) {
+        for (int i = 0; i < speaii.getpop().getPopsize(); i++) {
             ArrayList<Object> objective =  new ArrayList<>();
-            objective.add(speaii.getpop(i).getdecode().getTotalDelay());
-            objective.add(speaii.getpop(i).getdecode().getUtilization());
+            objective.add(speaii.getpop(i).getDecode().getTotalDelay());
+            objective.add(speaii.getpop(i).getDecode().getUtilization());
             // objectiveMap.put(i+1, objective);
             DataStore.writefile("{\"" + (i + 1) + "\"" + ":" + objective + "}", p + "\\popObj.txt");
         }
@@ -230,8 +231,10 @@ public class AllInSPEA2 extends Thread {
         // }
         // System.out.println("\t\tbest total delay: " + bottomtOfA + "\t\tbest utilization: " + topuOfA);
 
-        if (!this.isAlive()) {
-            System.out.println("\033[33mSPEA2_" + p.substring(p.length() - 1) + "\t\t运行时间：" + this.runningtime/1000 + "s  \t迭代代数：" + this.lastiteration + "  \tbest total delay: " + this.besttotaldelay + "  \tbest utilization: " + this.bestutilization + "\033[0m");
-        }
+        // if (!this.isAlive()) {
+        //     System.out.println("\033[33mSPEA2" + "\t\t运行时间：" + this.runningtime/1000 + "s  \t迭代代数：" + this.lastiteration + "  \tbest total delay: " + this.besttotaldelay + "  \tbest utilization: " + this.bestutilization + "\033[0m");
+        // }
+
+        return "\033[33mSPEA2" + "\t\t\t运行时间：" + this.runningtime/1000 + "s  \t迭代代数：" + this.lastiteration + "  \tbest total delay: " + this.besttotaldelay + "  \tbest utilization: " + this.bestutilization + "\033[0m";
     }
 }
