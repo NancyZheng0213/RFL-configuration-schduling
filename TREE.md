@@ -3,9 +3,8 @@
 为了对比多个算法框架，本项目将所有算法相同的代码块放入超类 ```Algorithem``` 中，对比的算法作为子类继承 ```Algorithem```。目录结构如下：
 
 1. 超类  
-├─ Algorithem.java
+├─ Algorithm.java
 ├─ Code.java
-├─ compare.py
 ├─ DataStore.java
 ├─ Decode.java
 ├─ Encode.java
@@ -49,3 +48,4 @@
 │  ├─ IndividualofSPEA2.java
 │  ├─ PopofSPEA2.java
 │  └─ SPEA2.java
+├─ compare.py

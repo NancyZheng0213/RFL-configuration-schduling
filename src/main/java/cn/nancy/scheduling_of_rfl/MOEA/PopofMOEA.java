@@ -15,15 +15,6 @@ public class PopofMOEA extends Pop {
         setIndividuals(individuals);
     }
 
-    public void encode(int PartsNum, Map<Integer, ArrayList<Integer>> Machine, int ProcessNum, Map<Integer, ArrayList<Integer>> Process, Map<Integer, ArrayList<Integer>> AlternativeMachine) {
-        for (int i = 0; i < getPopsize(); i++) {
-            EncodeofMOEA encoding = new EncodeofMOEA(PartsNum, Machine, ProcessNum, Process);
-            getIndividual(i).getCode().setConfigurationCode(encoding.getCode().getConfigurationCode());
-            getIndividual(i).getCode().setOperationCode(encoding.getCode().getOperationCode());
-            getIndividual(i).getCode().setSortCode(encoding.getCode().getSortCode());
-        }
-    }
-
     // SET methods
     /**
      * set the <i>i</i>th individual

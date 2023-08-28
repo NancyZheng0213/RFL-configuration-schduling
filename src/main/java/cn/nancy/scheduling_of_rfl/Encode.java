@@ -23,24 +23,42 @@ public class Encode {
      */
     private Code Code;
     /**
+     * 配置编码方法
+     */
+    private EncodingConf encodingConf;
+    /**
+     * 操作编码方法
+     */
+    private EncodingOP encodingOP;
+    /**
      * 排序编码方法
      */
     private EncodingSort encodingSort;
 
     /**
      * 初始化
-     * @param PartsNum 工件种类数量
+     * @param PartNum 工件种类数量
      * @param Machine 每台机器对应的可加工操作
      * @param ProcessNum 工序数量
+     * @param Process 每种工件对应的加工工序列表，<code>Map&lt;Integer, ArrayList&gt;</code>
+     * @param AlternativeMachine 每台设备对应的可替换设备列表，<code>Map&lt;Integer, ArrayList&gt;</code>
      */
-    public Encode(int PartsNum, Map<Integer, ArrayList<Integer>> Machine, int ProcessNum){
+    public Encode(int PartsNum, Map<Integer, ArrayList<Integer>> Machine, int ProcessNum, Map<Integer, ArrayList<Integer>> Process, Map<Integer, ArrayList<Integer>> AlternativeMachine){
         // 属性初始化
         this.OptMachineSet = new HashMap<Integer, ArrayList<Integer>>();
         this.OptStageSet = new HashMap<Integer, ArrayList<Integer>>();
         this.Code = new Code();
         // 获取工序的可选机器集合
         SearchOptMachineSet(Machine, ProcessNum);
-        // 在子类中设备配置编码\操作编码
+        // 配置编码
+        encodingConf(this.encodingConf, AlternativeMachine);
+        this.Code.setConfigurationCode(this.encodingConf.getConfigurationCode());
+        // 操作编码
+        SearchOptStageSet(this.encodingConf.getConfigurationCode(), Machine, ProcessNum);
+        for (int p = 0; p < PartsNum; p++) {
+            encodingOP(this.encodingConf, this.encodingOP, Process.get(p+1));
+            this.Code.setOperationCode(p+1, this.encodingOP.getOperationCode());
+        }
         // 排序编码
         this.encodingSort = new EncodingSort(PartsNum);
         this.Code.setSortCode(this.encodingSort.getSortCode());
@@ -176,5 +194,19 @@ public class Encode {
      */
     public EncodingSort getencodingSort() {
         return this.encodingSort;
+    }
+    /**
+     * 获取配置编码
+     * @return EncodingConf
+     */
+    public EncodingConf getencodingConf() {
+        return this.encodingConf;
+    }
+    /**
+     * 获取工序的工位编码
+     * @return EncodingOP
+     */
+    public EncodingOP getencodingOP() {
+        return this.encodingOP;
     }
 }

@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import cn.nancy.scheduling_of_rfl.Algorithem;
+import cn.nancy.scheduling_of_rfl.Algorithm;
 import cn.nancy.scheduling_of_rfl.Decode;
 import cn.nancy.scheduling_of_rfl.Individual;
 import cn.nancy.scheduling_of_rfl.Pop;
@@ -16,7 +16,7 @@ import cn.nancy.scheduling_of_rfl.Qus;
 /**
  * MOEA/D 算法，采用切比雪夫分解
  */
-public class MOEA extends Algorithem {
+public class MOEA extends Algorithm {
     enum OBJECTIVE {
         MAX, MIN
     };
