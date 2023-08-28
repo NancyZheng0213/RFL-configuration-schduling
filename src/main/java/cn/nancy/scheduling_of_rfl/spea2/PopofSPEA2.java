@@ -84,11 +84,26 @@ public class PopofSPEA2 extends Pop {
         return list;
     }
 
-    // SET method
+    // SET methods
+    /**
+     * set the <i>i</i>th individual
+     * 
+     * <p> Different from the <code>setIndividual(int i, Individual individual)</code>, 
+     * the individual here is class <code>IndividualofSPEA2</code></P>
+     * @param i
+     * @param individual
+     */
     public void setIndividual(int i, IndividualofSPEA2 individual) {
         super.setIndividual(i, individual);
     }
-
+    /**
+     * deep copy the <i>i</i>th individual
+     * 
+     * <p>Different from the <code>deepsetIndividual(int i, Individual individual)</code>, 
+     * the individual here is class <code>IndividualofSPEA2</code></p>
+     * @param i
+     * @param individual
+     */
     public void deepsetIndividual(int i, IndividualofSPEA2 individual) {
         super.setIndividual(i, new IndividualofSPEA2(individual));
     }
@@ -105,7 +120,7 @@ public class PopofSPEA2 extends Pop {
         getIndividual(i).setFitness(fitness);
     }
 
-    // GET method
+    // GET methods
     @Override
     public IndividualofSPEA2[] getIndividuals() {
         return (IndividualofSPEA2[]) super.getIndividuals();

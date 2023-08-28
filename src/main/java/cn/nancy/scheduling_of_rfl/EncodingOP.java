@@ -70,23 +70,23 @@ public class EncodingOP {
         for (int processIndex = 0; processIndex < processSize; processIndex++) {
             int process = ProcessOfP.get(processIndex);                                     // 记录工件 p 的第 processIndex 道工序的编号
             ArrayList<Integer> worklist = new ArrayList<Integer>(OptStageSet.get(process)); // 记录工件 p 工序 process 的可用工位
-            // // 注释开始*************************************************************************
-            // // 应用规则，缩小集合范围
-            // if (processIndex + 1 <= processSize - 3) {  // 当操作序号小于等于 processSize - 3，删去可选工位中大于 workNum - 1 的
-            //     for (Integer integer : OptStageSet.get(process)) {
-            //         if (integer > workNum - 1) {
-            //             worklist.remove(integer);
-            //         }
-            //     }
-            // }
-            // if (processIndex + 1 > 3) {                 // 当操作序号大于 3 ，删去可选工位中小于等于 1 的
-            //     for (Integer integer : OptStageSet.get(process)) {
-            //         if (integer <= 1) {
-            //             worklist.remove(integer);
-            //         }
-            //     }
-            // }
-            // // 注释结束*************************************************************************
+            // 注释开始*************************************************************************
+            // 应用规则，缩小集合范围
+            if (processIndex + 1 <= processSize - 3) {  // 当操作序号小于等于 processSize - 3，删去可选工位中大于 workNum - 1 的
+                for (Integer integer : OptStageSet.get(process)) {
+                    if (integer > workNum - 1) {
+                        worklist.remove(integer);
+                    }
+                }
+            }
+            if (processIndex + 1 > 3) {                 // 当操作序号大于 3 ，删去可选工位中小于等于 1 的
+                for (Integer integer : OptStageSet.get(process)) {
+                    if (integer <= 1) {
+                        worklist.remove(integer);
+                    }
+                }
+            }
+            // 注释结束*************************************************************************
             map.put(process, worklist);
         }
         this.OptStageSet.putAll(map);

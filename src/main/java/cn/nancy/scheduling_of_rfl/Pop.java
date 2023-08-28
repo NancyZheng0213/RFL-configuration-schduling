@@ -19,7 +19,7 @@ public class Pop {
     }
 
     /**
-     * 编码
+     * 编码，子类需覆写
      * @param Machine 每台机器对应的可加工操作
      * @param ProcessNum 工序总数
      * @param Process 每个工件对应的工艺流程
@@ -28,7 +28,7 @@ public class Pop {
     public void encode(int PartsNum, Map<Integer, ArrayList<Integer>> Machine, int ProcessNum, Map<Integer, ArrayList<Integer>> Process, Map<Integer, ArrayList<Integer>> AlternativeMachine) {
         for (int i = 0; i < this.popsize; i++) {
             // 编码开始
-            Encode encoding = new Encode(PartsNum, Machine, ProcessNum, Process, AlternativeMachine);
+            Encode encoding = new Encode(PartsNum, Machine, ProcessNum);
             this.individuals[i].getCode().setConfigurationCode(encoding.getCode().getConfigurationCode());
             this.individuals[i].getCode().setOperationCode(encoding.getCode().getOperationCode());
             this.individuals[i].getCode().setSortCode(encoding.getCode().getSortCode());

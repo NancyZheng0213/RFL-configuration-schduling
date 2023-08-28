@@ -28,10 +28,12 @@ public class Encode {
     private EncodingSort encodingSort;
 
     /**
-     * 初始化（不存在可替代机器）
+     * 初始化
+     * @param PartsNum 工件种类数量
      * @param Machine 每台机器对应的可加工操作
+     * @param ProcessNum 工序数量
      */
-    public Encode(int PartsNum, Map<Integer, ArrayList<Integer>> Machine, Map<Integer, ArrayList<Integer>> Process, int ProcessNum){
+    public Encode(int PartsNum, Map<Integer, ArrayList<Integer>> Machine, int ProcessNum){
         // 属性初始化
         this.OptMachineSet = new HashMap<Integer, ArrayList<Integer>>();
         this.OptStageSet = new HashMap<Integer, ArrayList<Integer>>();
@@ -42,23 +44,6 @@ public class Encode {
         // 排序编码
         this.encodingSort = new EncodingSort(PartsNum);
         this.Code.setSortCode(this.encodingSort.getSortCode());
-    }
-
-    /**
-     * 初始化（存在可替代机器）
-     * @param Machine 每台机器对应的可加工操作
-     */
-    public Encode(int PartsNum, Map<Integer, ArrayList<Integer>> Machine, int ProcessNum, Map<Integer, ArrayList<Integer>> Process, Map<Integer, ArrayList<Integer>> AlternativeMachine){
-        // 属性初始化
-        this.OptMachineSet = new HashMap<Integer, ArrayList<Integer>>();
-        this.OptStageSet = new HashMap<Integer, ArrayList<Integer>>();
-        this.Code = new Code();
-        // 获取工序的可选机器集合
-        SearchOptMachineSet(Machine, ProcessNum);
-        
-        // 排序编码
-        this.encodingSort = new EncodingSort(PartsNum);
-        Code.setSortCode(this.encodingSort.getSortCode());
     }
 
     /**

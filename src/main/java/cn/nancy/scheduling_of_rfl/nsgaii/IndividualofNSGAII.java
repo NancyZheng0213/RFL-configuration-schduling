@@ -29,10 +29,12 @@ public class IndividualofNSGAII extends Individual {
         this.d = 0;
     }
 
+    /**
+     * deep copy from another individual
+     * @param individual
+     */
     public IndividualofNSGAII(IndividualofNSGAII individual) {
         super(individual);
-        setCode(individual.getCode());
-        setDecode(individual.getDecode());
         setN(individual.getN());
         setS(individual.getS());
         setR(individual.getR());

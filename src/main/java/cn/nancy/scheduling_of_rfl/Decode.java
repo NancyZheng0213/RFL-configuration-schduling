@@ -388,4 +388,19 @@ public class Decode {
     public int getTotalDelay() {
         return this.TotalDelay;
     }
+    /**
+     * 获取目标函数值
+     * @param ObjectiveName 目标名称，“Utilization”或者“TotalDelay”
+     * @return
+     */
+    public double getObjectiveValue(String ObjectiveName) {
+        switch (ObjectiveName) {
+            case "Utilization":
+                return this.Utilization;
+            case "TotalDelay":
+                return this.TotalDelay;
+            default:
+                throw new IllegalArgumentException("The name of objective MUST be \"Utilization\" OR \"TotalDelay\".");
+        }
+    }
 }

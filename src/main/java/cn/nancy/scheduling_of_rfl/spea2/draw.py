@@ -173,8 +173,8 @@ if __name__ == '__main__':
         plt.legend(loc='best', fontsize=9)
         plt.ticklabel_format(style='sci', scilimits=(0,0), axis='x', useMathText=True)
         plt.grid()
-        plt.savefig(p + "\\解散点图.jpg", format='jpg', dpi=300)
         plt.show()
+        plt.savefig(p + "\\解散点图.jpg", format='jpg', dpi=300)
 
         # %% 画迭代曲线图
         utilization = []

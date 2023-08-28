@@ -59,10 +59,26 @@ public class PopofNSGAII extends Pop{
     //     }
     // }
 
-    // SET method
+    // SET methods
+    /**
+     * set the <i>i</i>th individual
+     * 
+     * <p> Different from the <code>setIndividual(int i, Individual individual)</code>, 
+     * the individual here is class <code>IndividualofNSGAII</code></P>
+     * @param i
+     * @param individual
+     */
     public void setIndividual(int i, IndividualofNSGAII individual) {
         super.setIndividual(i, individual); 
     }
+    /**
+     * deep copy the <i>i</i>th individual
+     * 
+     * <p>Different from the <code>deepsetIndividual(int i, Individual individual)</code>, 
+     * the individual here is class <code>IndividualofNSGAII</code></p>
+     * @param i
+     * @param individual
+     */
     public void deepsetIndividual(int i, IndividualofNSGAII individual) {
         super.setIndividual(i, new IndividualofNSGAII(individual));
     }
@@ -79,7 +95,7 @@ public class PopofNSGAII extends Pop{
         getIndividual(i).setD(n);
     }
 
-    // GET method
+    // GET methods
     @Override
     public IndividualofNSGAII[] getIndividuals() {
         return (IndividualofNSGAII[])super.getIndividuals();

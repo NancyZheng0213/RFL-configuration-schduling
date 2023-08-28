@@ -2,6 +2,7 @@ package cn.nancy.scheduling_of_rfl;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -9,6 +10,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+
+import cn.nancy.scheduling_of_rfl.MOEA.AllInMOEA;
+import cn.nancy.scheduling_of_rfl.MOEA.MOEA;
 import cn.nancy.scheduling_of_rfl.nsgaii.*;
 import cn.nancy.scheduling_of_rfl.spea2.*;
 
@@ -90,16 +94,12 @@ public class Experiment {
                 String storefile = path + "result\\" + Directorys;
                 Qus qus = new Qus(filename);
                 System.out.println("\033[31m" + double_hr +"  " + Directorys + ": " + qus.getPartsNum() + " products, " + qus.getProcessNum() + " processes, " + qus.getMachineTypesNum() + " machines  " + double_hr + "\033[0m");
-                // NSGAII_1             
-                AllInNSGAII nsgaii_1 = new AllInNSGAII(qus, storefile + "\\NSGAII_1", MaxIteration[caseindex-1], popsize, 0.8, 0.3, 0.8);
-                // NSGAII_2             
-                AllInNSGAII nsgaii_2 = new AllInNSGAII(qus, storefile + "\\NSGAII_2", MaxIteration[caseindex-1], popsize, 0.8, 0.3, 0.8);
-                // NSGAII_3             
-                AllInNSGAII nsgaii_3 = new AllInNSGAII(qus, storefile + "\\NSGAII_3", MaxIteration[caseindex-1], popsize, 0.8, 0.3, 0.8);
-                // NSGAII_4             
-                AllInNSGAII nsgaii_4 = new AllInNSGAII(qus, storefile + "\\NSGAII_4", MaxIteration[caseindex-1], popsize, 0.8, 0.3, 0.8);
+                // NSGAII         
+                AllInNSGAII nsgaii = new AllInNSGAII(qus, storefile + "\\NSGAII_1", MaxIteration[caseindex-1], popsize, 0.8, 0.3, 0.8);
                 // SPEA2
                 AllInSPEA2 spea2 = new AllInSPEA2(qus, storefile + "\\SPEA2_1", popsize, archivesize, MaxIteration[caseindex-1], 4);
+                // MOEA
+                AllInMOEA moea = new AllInMOEA(qus, storefile + "\\MOEA/D", MaxIteration[caseindex-1], popsize-1, 20);
                 //random
                 // System.out.println("\033[34m" + hr + "-  random " + hr + "\033[0m");
 
@@ -109,10 +109,8 @@ public class Experiment {
                 ExecutorService executor = Executors.newFixedThreadPool(2);
                 List<Callable<String>> AlgorithemList = new ArrayList<> ();
                 AlgorithemList.add(spea2);
-                // AlgorithemList.add(nsgaii_1);
-                AlgorithemList.add(nsgaii_2);
-                AlgorithemList.add(nsgaii_3);
-                AlgorithemList.add(nsgaii_4);
+                AlgorithemList.add(nsgaii);
+                AlgorithemList.add(moea);
                 for (int j = 0; j < AlgorithemList.size(); j++) {
                 	executor = Executors.newFixedThreadPool(2);
                 	Future<?> future1 = executor.submit(AlgorithemList.get(j));
@@ -149,11 +147,9 @@ public class Experiment {
                     // TODO: handle exception
                 }
                 System.out.println("\033[34mSPEA2\t\t\t运行时间：" + spea2.runningtime/1000 + "s  \t迭代代数：" + spea2.lastiteration + "  \tbest total delay: " + spea2.besttotaldelay + "  \tbest utilization: " + spea2.bestutilization + "\033[0m");
-                // System.out.println("\033[34mNSGAII_1\t\t运行时间：" + nsgaii_1.runningtime/1000 + "s  \t迭代代数：" + nsgaii_1.lastiteration + "  \tbest total delay: " + nsgaii_1.besttotaldelay + "  \tbest utilization: " + nsgaii_1.bestutilization + "\033[0m");
-                System.out.println("\033[34mNSGAII_2\t\t运行时间：" + nsgaii_2.runningtime/1000 + "s  \t迭代代数：" + nsgaii_2.lastiteration + "  \tbest total delay: " + nsgaii_2.besttotaldelay + "  \tbest utilization: " + nsgaii_2.bestutilization + "\033[0m");
-                System.out.println("\033[34mNSGAII_3\t\t运行时间：" + nsgaii_3.runningtime/1000 + "s  \t迭代代数：" + nsgaii_3.lastiteration + "  \tbest total delay: " + nsgaii_3.besttotaldelay + "  \tbest utilization: " + nsgaii_3.bestutilization + "\033[0m");
-                System.out.println("\033[34mNSGAII_4\t\t运行时间：" + nsgaii_4.runningtime/1000 + "s  \t迭代代数：" + nsgaii_4.lastiteration + "  \tbest total delay: " + nsgaii_4.besttotaldelay + "  \tbest utilization: " + nsgaii_4.bestutilization + "\033[0m");
-                String data = i+","+spea2.runningtime+","+nsgaii_1.runningtime+","+nsgaii_2.runningtime+","+nsgaii_3.runningtime+","+nsgaii_4.runningtime+","+spea2.besttotaldelay+","+nsgaii_1.besttotaldelay+","+nsgaii_2.besttotaldelay+","+nsgaii_3.besttotaldelay+","+nsgaii_4.besttotaldelay+","+spea2.bestutilization+","+nsgaii_1.bestutilization+","+nsgaii_2.bestutilization+","+nsgaii_3.bestutilization+","+nsgaii_4.bestutilization;
+                System.out.println("\033[34mNSGAII_1\t\t运行时间：" + nsgaii.runningtime/1000 + "s  \t迭代代数：" + nsgaii.lastiteration + "  \tbest total delay: " + nsgaii.besttotaldelay + "  \tbest utilization: " + nsgaii.bestutilization + "\033[0m");
+                System.out.println("\033[34mNSGAII_2\t\t运行时间：" + moea.runningtime/1000 + "s  \t迭代代数：" + moea.lastiteration + "  \tbest total delay: " + moea.besttotaldelay + "  \tbest utilization: " + moea.bestutilization + "\033[0m");
+                String data = i+","+spea2.runningtime+","+nsgaii.runningtime+","+moea.runningtime+","+spea2.besttotaldelay+","+nsgaii.besttotaldelay+","+moea.besttotaldelay+","+spea2.bestutilization+","+nsgaii.bestutilization+","+moea.bestutilization;
                 DataStore.writecsv(data, path + "result\\" + instance + ".csv");
                 System.out.println();
                 try {
@@ -167,10 +163,10 @@ public class Experiment {
     
     public static void main(String[] args) {
         // 对比的算法名称列表，将被对比对象放在第一个
-        String[] AlgorithemNameList = new String[] {"SPEA2", "NSGAII_1", "NSGAII_2", "NSGAII_3", "NSGAII_4"};
-        String[] casename = new String[] {"case4"};
+        String[] AlgorithemNameList = new String[] {"SPEA2"};
+        String[] casename = new String[] {"case1"};
         int exptime = 10;
-        int[] MaxIteration = {200, 400, 500}; // {200, 400, 500};
+        int[] MaxIteration = {50, 400, 500}; // {200, 400, 500};
         int popsize = 80;
         int archivesize = 60;
         int[] TimeOfThread = {3000, 18000, 240000};  // 每个实验运行时长，单位：s

@@ -6,7 +6,7 @@ import java.util.Comparator;
 import java.util.Random;
 import cn.nancy.scheduling_of_rfl.*;
 
-public class NSGAII extends Algorithem{
+public class NSGAII extends Algorithm{
     /**
      * probability of PBX crossover
      */

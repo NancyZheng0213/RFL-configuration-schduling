@@ -6,7 +6,7 @@ import java.util.Comparator;
 import java.util.Random;
 import cn.nancy.scheduling_of_rfl.*;
 
-public class SPEA2 extends Algorithem{
+public class SPEA2 extends Algorithm{
     /**
      * 精英种群
      */

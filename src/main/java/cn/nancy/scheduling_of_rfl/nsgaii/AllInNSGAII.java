@@ -140,12 +140,12 @@ public class AllInNSGAII implements Callable<String> {
 
         DataStore.createNewFile(p + "\\GantteData.txt");
         DataStore.createNewFile(p + "\\ParetoFront.txt");
-        DataStore.createNewFile(p + "\\archiveObj.txt");
+        DataStore.createNewFile(p + "\\popObj.txt");
         for (int i = 0; i < popsize; i++) {
             ArrayList<Object> objective =  new ArrayList<>();
             objective.add(nsgaii.getPop().getIndividual(i).getDecode().getTotalDelay());
             objective.add(nsgaii.getPop().getIndividual(i).getDecode().getUtilization());
-            DataStore.writefile("{\"" + (i + 1) + "\":" + objective + "}", p + "\\archiveObj.txt");
+            DataStore.writefile("{\"" + (i + 1) + "\":" + objective + "}", p + "\\popObj.txt");
             if (nsgaii.getPop().getIndividual(i).getR() == 1) {
                 // objectivMap.put(i + 1, objective);
                 DataStore.writefile("{\"" + (i + 1) + "\"" + ":" + objective + "}", p + "\\ParetoFront.txt");

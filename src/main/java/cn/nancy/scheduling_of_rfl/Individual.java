@@ -15,6 +15,10 @@ public class Individual {
         this.decode = new Decode();
     }
 
+    /**
+     * deep copy from another individual
+     * @param individual
+     */
     public Individual(Individual individual) {
         this.code = new Code();
         this.decode = new Decode();

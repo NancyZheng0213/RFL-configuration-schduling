@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.TreeMap;
 
-public abstract class Algorithem {
+public abstract class Algorithm {
     private int MaxIteration;
     /**
      * 竞标赛选择的参数大小
@@ -20,7 +20,7 @@ public abstract class Algorithem {
      */
     private Pop pop;
 
-    public Algorithem(int MaxIteration, int TournamentPara) {
+    public Algorithm(int MaxIteration, int TournamentPara) {
         this.MaxIteration = MaxIteration;
         this.TournamentPara = TournamentPara;
         this.pop = null;
@@ -52,13 +52,13 @@ public abstract class Algorithem {
      * 
      * <p> 按顺序每两个一组进行交叉变异，得到子代
      * 
-     * @param pop 父代种群
+     * @param ParentPop 父代种群
      * @param qus 数据
      * @return Pop 子代种群
      */
-    public Pop Variation1(Pop pop, Qus qus) {
+    public Pop Variation1(Pop ParentPop, Qus qus) {
         
-        int popsize = pop.getPopsize();
+        int popsize = ParentPop.getPopsize();
         Pop MatingPool = MatingSelection(popsize/2+1);
         Pop chilidPop = new Pop(popsize);                   // 子代
 
@@ -136,13 +136,13 @@ public abstract class Algorithem {
      * 
      * <p>将交配池中每个个体VNS，扩大交配池三倍，然后随机进行PBX和SwapMutation
      * 
-     * @param pop 父代种群
+     * @param ParentPop 父代种群
      * @param qus 数据
      * @return Pop，下一代种群
      */
-    public Pop Variation2(Pop pop, Qus qus) {
+    public Pop Variation2(Pop ParentPop, Qus qus) {
         // 每次从混合种群中选出 tournamentPara 个个体，并将里面最优个体VNO后放入交配池
-        int popsize = pop.getPopsize();
+        int popsize = ParentPop.getPopsize();
         Pop childPop = new Pop(popsize);                // 子代种群
         Pop MatingPool = MatingSelection(popsize);      // 记录配置和操作编码变化的个体
         // VNS
@@ -182,12 +182,12 @@ public abstract class Algorithem {
      * 交叉变异
      * 
      * <p> 用于对比
-     * @param pop 父代种群
+     * @param ParentPop 父代种群
      * @param qus
      * @return Pop 子代种群
      */
-    public Pop Variation3(Pop pop, Qus qus) {
-        int popsize = pop.getPopsize();
+    public Pop Variation3(Pop ParentPop, Qus qus) {
+        int popsize = ParentPop.getPopsize();
         Pop MatingPool = MatingSelection(popsize/2);
         Pop childPop = new Pop(popsize);
         // randomly select parents to perfrom VNO, PBX, and SM for configuration code and sorting code
@@ -233,7 +233,7 @@ public abstract class Algorithem {
      * 采用 PBX （Position-based Crossover） 算子对排序编码执行交叉操作
      * @param code1
      * @param code2
-     * @return Code
+     * @return Code list
      */
     public ArrayList<ArrayList<Integer>> PBX(ArrayList<Integer> code1, ArrayList<Integer> code2) {
         ArrayList<Integer> parent1 = new ArrayList<>(code1);

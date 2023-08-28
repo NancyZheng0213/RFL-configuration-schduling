@@ -31,14 +31,16 @@ public class IndividualofSPEA2 extends Individual {
         this.D = 0.0;
     }
 
+    /**
+     * deep copy from another individual
+     * @param individual
+     */
     public IndividualofSPEA2(IndividualofSPEA2 individual) {
         super(individual);
         setD(individual.getD());
         setFitness(individual.getFitness());
         setR(individual.getR());
         setS(individual.getS());
-        setCode(individual.getCode());
-        setDecode(individual.getDecode());
         setXigema(individual.getXigema());
     }
 
