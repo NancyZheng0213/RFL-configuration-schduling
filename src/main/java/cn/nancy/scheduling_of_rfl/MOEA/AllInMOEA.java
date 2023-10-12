@@ -74,7 +74,7 @@ public class AllInMOEA implements Callable<String> {
     public String call() throws Exception {
         System.out.println(
     			"\033[32m" + String.join(" -", Collections.nCopies(11, " -"))
-    			+ " MOEA/D_" + p.substring(p.length() - 1) + " start \tMaxIteration: " + this.MaxIteration
+    			+ " MOEA/D_" + " start \tMaxIteration: " + this.MaxIteration
     			+ ", Popsize: " + this.popsize
     			+ String.join(" -", Collections.nCopies(11, " -")) + "\t\t\033[0m");
         double tOfA = 0;
@@ -111,7 +111,7 @@ public class AllInMOEA implements Callable<String> {
             besttotaldelay = bottomtOfA;
             bestutilization = topuOfA;
             if (this.lastiteration % 10 == 0) {
-            	System.out.println("\033[32mNSGAII_" + p.substring(p.length() - 1) + " \t\t\033[0miteration " + this.lastiteration + "\t\tbest total delay: " + bottomtOfA + "\t\tbest utilization: " + topuOfA);
+            	System.out.println("\033[32mMOEA/D" + " \t\t\033[0miteration " + this.lastiteration + "\t\tbest total delay: " + bottomtOfA + "\t\tbest utilization: " + topuOfA);
 			}
             this.lastiteration++;
 
@@ -145,6 +145,6 @@ public class AllInMOEA implements Callable<String> {
 
         runningtime = endTime - startTime;
 
-        return "\033[33mMOEA/D_" + p.substring(p.length() - 1) + "\t\t运行时间：" + this.runningtime/1000 + "s  \t迭代代数：" + this.lastiteration + "  \tbest total delay: " + this.besttotaldelay + "  \tbest utilization: " + this.bestutilization + "\033[0m";
+        return "\033[33mMOEA/D" + "\t\t运行时间：" + this.runningtime/1000 + "s  \t迭代代数：" + this.lastiteration + "  \tbest total delay: " + this.besttotaldelay + "  \tbest utilization: " + this.bestutilization + "\033[0m";
     }
 }

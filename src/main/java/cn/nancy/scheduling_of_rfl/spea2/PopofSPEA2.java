@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+
+import cn.nancy.scheduling_of_rfl.Individual;
 import cn.nancy.scheduling_of_rfl.Pop;
 
 /**
@@ -95,6 +97,16 @@ public class PopofSPEA2 extends Pop {
      */
     public void setIndividual(int i, IndividualofSPEA2 individual) {
         super.setIndividual(i, individual);
+    }
+    public void setIndividual(int i, Individual individual) {
+        if (IndividualofSPEA2.class.isInstance(individual)) {
+            setIndividual(i, individual);
+        } else {
+            IndividualofSPEA2 newindividual = new IndividualofSPEA2();
+            newindividual.setCode(individual.getCode());
+            newindividual.setDecode(individual.getDecode());
+            super.setIndividual(i, newindividual); 
+        }
     }
     /**
      * deep copy the <i>i</i>th individual

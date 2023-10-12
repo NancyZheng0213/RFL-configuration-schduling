@@ -51,12 +51,12 @@ public class Encode {
         // 获取工序的可选机器集合
         SearchOptMachineSet(Machine, ProcessNum);
         // 配置编码
-        encodingConf(this.encodingConf, AlternativeMachine);
+        encodingConf(AlternativeMachine);
         this.Code.setConfigurationCode(this.encodingConf.getConfigurationCode());
         // 操作编码
         SearchOptStageSet(this.encodingConf.getConfigurationCode(), Machine, ProcessNum);
         for (int p = 0; p < PartsNum; p++) {
-            encodingOP(this.encodingConf, this.encodingOP, Process.get(p+1));
+            encodingOP(Process.get(p+1));
             this.Code.setOperationCode(p+1, this.encodingOP.getOperationCode());
         }
         // 排序编码
@@ -67,40 +67,40 @@ public class Encode {
     /**
      * 不存在可替代机器的配置编码
      */
-    public void encodingConf(EncodingConf encodingConf) {
-        encodingConf = new EncodingConf(this.OptMachineSet);
-        while (! encodingConf.TerminateIteration()) {
-            encodingConf.setOptMachine();           // 选择机器
-            encodingConf.UpdateOptMachineSet();     // 更新可选机器集合
-            if (encodingConf.isSameChoice()) {      // 若存在机器相同的工序并可解，则更新可选机器集合
-                encodingConf.UpdateOptMachineSet();
+    public void encodingConf() {
+        this.encodingConf = new EncodingConf(this.OptMachineSet);
+        while (! this.encodingConf.TerminateIteration()) {
+            this.encodingConf.setOptMachine();           // 选择机器
+            this.encodingConf.UpdateOptMachineSet();     // 更新可选机器集合
+            if (this.encodingConf.isSameChoice()) {      // 若存在机器相同的工序并可解，则更新可选机器集合
+                this.encodingConf.UpdateOptMachineSet();
             }
-            if (encodingConf.isNoSolution()) {      // 当无解时重新开始循环
-                encodingConf = new EncodingConf(this.OptMachineSet);
+            if (this.encodingConf.isNoSolution()) {      // 当无解时重新开始循环
+                this.encodingConf = new EncodingConf(this.OptMachineSet);
                 continue;
             }
         }
-        encodingConf.undateConfigurationCode();
+        this.encodingConf.undateConfigurationCode();
     }
 
     /**
      * 存在可替代机器的配置编码
      * @param AlternativeMachine
      */
-    public void encodingConf(EncodingConf encodingConf, Map<Integer, ArrayList<Integer>> AlternativeMachine) {
-        encodingConf = new EncodingConf(this.OptMachineSet);
-        while (! encodingConf.TerminateIteration()) {
-            encodingConf.setOptMachine();           // 选择机器
-            encodingConf.UpdateOptMachineSet();     // 更新可选机器集合
-            if (encodingConf.isSameChoice(AlternativeMachine)) {      // 若存在机器相同的工序并可解，则更新可选机器集合
-                encodingConf.UpdateOptMachineSet();
+    public void encodingConf(Map<Integer, ArrayList<Integer>> AlternativeMachine) {
+        this.encodingConf = new EncodingConf(this.OptMachineSet);
+        while (! this.encodingConf.TerminateIteration()) {
+            this.encodingConf.setOptMachine();           // 选择机器
+            this.encodingConf.UpdateOptMachineSet();     // 更新可选机器集合
+            if (this.encodingConf.isSameChoice(AlternativeMachine)) {      // 若存在机器相同的工序并可解，则更新可选机器集合
+                this.encodingConf.UpdateOptMachineSet();
             }
-            if (encodingConf.isNoSolution()) {      // 当无解时重新开始循环
-                encodingConf = new EncodingConf(this.OptMachineSet);
+            if (this.encodingConf.isNoSolution()) {      // 当无解时重新开始循环
+                this.encodingConf = new EncodingConf(this.OptMachineSet);
                 continue;
             }
         }
-        encodingConf.undateConfigurationCode();
+        this.encodingConf.undateConfigurationCode();
     }
 
     /**
@@ -108,14 +108,14 @@ public class Encode {
      * @param Machine
      * @param ProcessOfP
      */
-    public void encodingOP(EncodingConf encodingConf, EncodingOP encodingOP, ArrayList<Integer> ProcessOfP) {
-        encodingOP = new EncodingOP(encodingConf.getConfigurationCode().size(), this.OptStageSet, ProcessOfP);
-        while (! encodingOP.TerminateIteration()) {
+    public void encodingOP(ArrayList<Integer> ProcessOfP) {
+        this.encodingOP = new EncodingOP(this.encodingConf.getConfigurationCode().size(), this.OptStageSet, ProcessOfP);
+        while (! this.encodingOP.TerminateIteration()) {
             // 选择工件 p 的下一个编码工序，并为其选择工位
-            encodingOP.setOptStage(ProcessOfP);
-            encodingOP.UpdateOptStageSet();
-            if (encodingOP.isNoSolution()) {
-                encodingOP = new EncodingOP(encodingConf.getConfigurationCode().size(), this.OptStageSet, ProcessOfP);
+            this.encodingOP.setOptStage(ProcessOfP);
+            this.encodingOP.UpdateOptStageSet();
+            if (this.encodingOP.isNoSolution()) {
+                this.encodingOP = new EncodingOP(this.encodingConf.getConfigurationCode().size(), this.OptStageSet, ProcessOfP);
                 continue;
             }
         }

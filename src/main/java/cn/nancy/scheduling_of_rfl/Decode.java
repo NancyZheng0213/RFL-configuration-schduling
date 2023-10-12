@@ -270,27 +270,24 @@ public class Decode {
      */
     public void totaldelay(ArrayList<Integer> SortCode, Map<Integer, Integer> DueDays) {
         this.TotalDelay = 0;
-        for (int machineindex = this.FinishTime.size() - 1; machineindex >= 0; machineindex--) {
-            Map<Integer, ArrayList<Double>> finishmap = this.FinishTime.get(machineindex);
-            for (int i = 0; i < SortCode.size(); i++) {
-                Iterator<Map.Entry<Integer, ArrayList<Double>>> finishmapIterator = finishmap.entrySet().iterator();
-                if (finishmapIterator.hasNext()) {
-                    ArrayList<Double> finishlist = finishmapIterator.next().getValue();
-                    Double finishtime = finishlist.get(i);
-                    if (finishtime > 0) {
-                        Integer due = DueDays.get(SortCode.get(i));
-                        this.TotalDelay += (due < finishlist.get(i)) ? (finishlist.get(i) - due) : 0;
-                        break;
+        ArrayList<Double> PartFinishList = new ArrayList<>();
+        for (int i = 0; i < SortCode.size(); i++) {
+            PartFinishList.add(0.0);
+        }
+        for (Map<Integer, ArrayList<Double>> MachineFinishTimeMap : this.FinishTime) {
+            Iterator<Map.Entry<Integer, ArrayList<Double>>> FinishMapIterator = MachineFinishTimeMap.entrySet().iterator();
+            while (FinishMapIterator.hasNext()) {
+                ArrayList<Double> finishlist = FinishMapIterator.next().getValue();
+                for (int i = 0; i < SortCode.size(); i++) {
+                    if (finishlist.get(i) > PartFinishList.get(i)) {
+                        PartFinishList.set(i, finishlist.get(i));
                     }
                 }
             }
         }
-        Map<Integer, ArrayList<Double>> lastfinishmap = this.FinishTime.get(this.FinishTime.size() - 1);    // 最后一台机器上所有工件的完工时间
-        int lastprocess = Collections.max(lastfinishmap.keySet());
-        ArrayList<Double> lastfinishlist = lastfinishmap.get(lastprocess);
         for (int i = 0; i < SortCode.size(); i++) {
             Integer due = DueDays.get(SortCode.get(i));
-            this.TotalDelay += (due < lastfinishlist.get(i)) ? (lastfinishlist.get(i) - due) : 0;
+            this.TotalDelay += (due < PartFinishList.get(i)) ? (PartFinishList.get(i) - due) : 0;
         }
     }
 

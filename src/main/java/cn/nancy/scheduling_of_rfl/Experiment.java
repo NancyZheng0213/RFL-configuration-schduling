@@ -47,7 +47,7 @@ public class Experiment {
      * @param archivesize
      * @param TimeOfThread 数组，每个case的最大运行时长
      */
-    public static void run_experiment(String[] AlgorithemNameList, String[] casename, int exptime, int[] MaxIteration, int popsize, int archivesize, int[] TimeOfThread) {
+    public static void run_experiment(String[] AlgorithmNameList, String[] casename, int exptime, int[] MaxIteration, int[] popsize, int[] archivesize, int[] TimeOfThread) {
         Experiment exp = new Experiment(casename, exptime);
         String path = "E:\\JavaProjects\\scheduling_of_rfl\\";
         String double_hr = String.join("", Collections.nCopies(40, "="));
@@ -59,15 +59,15 @@ public class Experiment {
 	        		caseindex = 1;
 	        		break;
 	        	case "2":
-	        	case "3":
 	        		caseindex = 2;
 	        		break;
+                case "3":
 	        	case "4":
 	        	case "5":
 	        		caseindex = 3;
 	        		break;
 	        	default:
-	                throw new IllegalArgumentException("The CASE num. must be 1, 3 or 4.");
+	                throw new IllegalArgumentException("The CASE num. must be from 1 to 5.");
         	}
             /**
              * 建立记录数据的文件
@@ -75,13 +75,13 @@ public class Experiment {
             DataStore.createNewFile(path + "result\\" + instance + ".csv"); // 创建空文件
             // 编辑 csv 文件的列标题
             String ColumnHeading = "iteration,";
-            for (String algorithem : AlgorithemNameList) {
+            for (String algorithem : AlgorithmNameList) {
                 ColumnHeading += "time_" + algorithem + ",";
             }
-            for (String algorithem : AlgorithemNameList) {
+            for (String algorithem : AlgorithmNameList) {
                 ColumnHeading += "bestT_" + algorithem + ",";
             }
-            for (String algorithem : AlgorithemNameList) {
+            for (String algorithem : AlgorithmNameList) {
                 ColumnHeading += "bestU_" + algorithem + ",";
             }
             DataStore.writecsv(ColumnHeading, path + "result\\" + instance + ".csv");
@@ -95,11 +95,11 @@ public class Experiment {
                 Qus qus = new Qus(filename);
                 System.out.println("\033[31m" + double_hr +"  " + Directorys + ": " + qus.getPartsNum() + " products, " + qus.getProcessNum() + " processes, " + qus.getMachineTypesNum() + " machines  " + double_hr + "\033[0m");
                 // NSGAII         
-                AllInNSGAII nsgaii = new AllInNSGAII(qus, storefile + "\\NSGAII_1", MaxIteration[caseindex-1], popsize, 0.8, 0.3, 0.8);
+                AllInNSGAII nsgaii = new AllInNSGAII(qus, storefile + "\\NSGAII_2", MaxIteration[caseindex-1], popsize[caseindex-1], 0.8, 0.3, 0.8);
                 // SPEA2
-                AllInSPEA2 spea2 = new AllInSPEA2(qus, storefile + "\\SPEA2_1", popsize, archivesize, MaxIteration[caseindex-1], 4);
+                AllInSPEA2 spea2 = new AllInSPEA2(qus, storefile + "\\SPEA2_2", popsize[caseindex-1], archivesize[caseindex-1], MaxIteration[caseindex-1], 2);
                 // MOEA
-                AllInMOEA moea = new AllInMOEA(qus, storefile + "\\MOEA/D", MaxIteration[caseindex-1], popsize-1, 20);
+                AllInMOEA moea = new AllInMOEA(qus, storefile + "\\MOEA", MaxIteration[caseindex-1], popsize[caseindex-1]-1, archivesize[caseindex-1]);
                 //random
                 // System.out.println("\033[34m" + hr + "-  random " + hr + "\033[0m");
 
@@ -107,13 +107,25 @@ public class Experiment {
                  * 利用 ExecutorService 中断线程
                  */
                 ExecutorService executor = Executors.newFixedThreadPool(2);
-                List<Callable<String>> AlgorithemList = new ArrayList<> ();
-                AlgorithemList.add(spea2);
-                AlgorithemList.add(nsgaii);
-                AlgorithemList.add(moea);
-                for (int j = 0; j < AlgorithemList.size(); j++) {
+                List<Callable<String>> AlgorithmList = new ArrayList<> ();
+                for (String algorithm : AlgorithmNameList) {
+                    switch (algorithm.substring(0, 4)) {
+                        case "SPEA":
+                            AlgorithmList.add(spea2);
+                            break;
+                        case "NSGA":
+                            AlgorithmList.add(nsgaii);
+                            break;
+                        case "MOEA":
+                            AlgorithmList.add(moea);
+                            break;
+                        default:
+                            throw new IllegalArgumentException("The NAME of algorithm must be \"SPEA2\", \"NSGAII\" or \"MOEA/D\".");
+                    }
+                }
+                for (int j = 0; j < AlgorithmNameList.length; j++) {
                 	executor = Executors.newFixedThreadPool(2);
-                	Future<?> future1 = executor.submit(AlgorithemList.get(j));
+                	Future<?> future1 = executor.submit(AlgorithmList.get(j));
                 	// Future<?> future2 = executor.submit(AlgorithemList.get(j+1));
                 	List<Future<?>> futures = new ArrayList<> ();
                 	futures.add(future1);
@@ -147,9 +159,55 @@ public class Experiment {
                     // TODO: handle exception
                 }
                 System.out.println("\033[34mSPEA2\t\t\t运行时间：" + spea2.runningtime/1000 + "s  \t迭代代数：" + spea2.lastiteration + "  \tbest total delay: " + spea2.besttotaldelay + "  \tbest utilization: " + spea2.bestutilization + "\033[0m");
-                System.out.println("\033[34mNSGAII_1\t\t运行时间：" + nsgaii.runningtime/1000 + "s  \t迭代代数：" + nsgaii.lastiteration + "  \tbest total delay: " + nsgaii.besttotaldelay + "  \tbest utilization: " + nsgaii.bestutilization + "\033[0m");
-                System.out.println("\033[34mNSGAII_2\t\t运行时间：" + moea.runningtime/1000 + "s  \t迭代代数：" + moea.lastiteration + "  \tbest total delay: " + moea.besttotaldelay + "  \tbest utilization: " + moea.bestutilization + "\033[0m");
-                String data = i+","+spea2.runningtime+","+nsgaii.runningtime+","+moea.runningtime+","+spea2.besttotaldelay+","+nsgaii.besttotaldelay+","+moea.besttotaldelay+","+spea2.bestutilization+","+nsgaii.bestutilization+","+moea.bestutilization;
+                System.out.println("\033[34mNSGAII\t\t\t运行时间：" + nsgaii.runningtime/1000 + "s  \t迭代代数：" + nsgaii.lastiteration + "  \tbest total delay: " + nsgaii.besttotaldelay + "  \tbest utilization: " + nsgaii.bestutilization + "\033[0m");
+                System.out.println("\033[34mMOEA/D\t\t\t运行时间：" + moea.runningtime/1000 + "s  \t迭代代数：" + moea.lastiteration + "  \tbest total delay: " + moea.besttotaldelay + "  \tbest utilization: " + moea.bestutilization + "\033[0m");
+                // 结果储存
+                String data = (i+1)+",";
+                for (String algorithm : AlgorithmNameList) {
+                    switch (algorithm.substring(0, 4)) {
+                        case "SPEA":
+                            data += spea2.runningtime+",";
+                            break;
+                        case "NSGA":
+                            data += nsgaii.runningtime+",";
+                            break;
+                        case "MOEA":
+                            data += moea.runningtime+",";
+                            break;
+                        default:
+                            throw new IllegalArgumentException("The NAME of algorithm must be \"SPEA2\", \"NSGAII\" or \"MOEA/D\".");
+                    }
+                }
+                for (String algorithm : AlgorithmNameList) {
+                    switch (algorithm.substring(0, 4)) {
+                        case "SPEA":
+                            data += spea2.besttotaldelay+",";
+                            break;
+                        case "NSGA":
+                            data += nsgaii.besttotaldelay+",";
+                            break;
+                        case "MOEA":
+                            data += moea.besttotaldelay+",";
+                            break;
+                        default:
+                            throw new IllegalArgumentException("The NAME of algorithm must be \"SPEA2\", \"NSGAII\" or \"MOEA/D\".");
+                    }
+                }
+                for (String algorithm : AlgorithmNameList) {
+                    switch (algorithm.substring(0, 4)) {
+                        case "SPEA":
+                            data += spea2.bestutilization+",";
+                            break;
+                        case "NSGA":
+                            data += nsgaii.bestutilization+",";
+                            break;
+                        case "MOEA":
+                            data += moea.bestutilization+",";
+                            break;
+                        default:
+                            throw new IllegalArgumentException("The NAME of algorithm must be \"SPEA2\", \"NSGAII\" or \"MOEA/D\".");
+                    }
+                }
                 DataStore.writecsv(data, path + "result\\" + instance + ".csv");
                 System.out.println();
                 try {
@@ -163,14 +221,14 @@ public class Experiment {
     
     public static void main(String[] args) {
         // 对比的算法名称列表，将被对比对象放在第一个
-        String[] AlgorithemNameList = new String[] {"SPEA2"};
-        String[] casename = new String[] {"case1"};
-        int exptime = 10;
-        int[] MaxIteration = {50, 400, 500}; // {200, 400, 500};
-        int popsize = 80;
-        int archivesize = 60;
-        int[] TimeOfThread = {3000, 18000, 240000};  // 每个实验运行时长，单位：s
-        run_experiment(AlgorithemNameList, casename, exptime, MaxIteration, popsize, archivesize, TimeOfThread);
+        String[] AlgorithmNameList = new String[] {"SPEA2", "NSGAII", "MOEA/D", };
+        String[] casename = new String[] {"case3"};
+        int exptime = 2;
+        int[] MaxIteration = {200, 400, 500};       // {200, 400, 500};
+        int[] popsize = {60, 70, 80};               // {}
+        int[] archivesize = {30, 40, 60};
+        int[] TimeOfThread = {3000, 18000, Integer.MAX_VALUE}; // 每个实验运行时长，单位：s
+        run_experiment(AlgorithmNameList, casename, exptime, MaxIteration, popsize, archivesize, TimeOfThread);
     }
 
 	public int getCaseNum() {

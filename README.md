@@ -1,22 +1,25 @@
+# configuration & scheduling of reconfigurable flow line
+
+核心算法代码位于文件夹src\main\java\cn\nancy\scheduling_of_rfl
+
+## 数据说明
+
++ case1.xlsx
++ case2.xlsx
++ case3.xlsx
+以上三个表格数据是论文中用于算法比较的算例数据，规模分别是：
+ID|number of jobs|number of RMTs|number of OPs
+1|8|10|12
+2|33|10|12
+3|60|31|17
+
++ case.xlsx
+论文中案例分析部分的数据，规模是 <28, 10, 12>
+
++ testcase.xlsx
+代码编写过程中测试用数据。
 
 ```
-scheduling_of_rfl
-├─ .classpath
-├─ .project
-├─ .settings
-│  ├─ org.eclipse.core.resources.prefs
-│  ├─ org.eclipse.jdt.apt.core.prefs
-│  ├─ org.eclipse.jdt.core.prefs
-│  └─ org.eclipse.m2e.core.prefs
-├─ .vscode
-│  └─ settings.json
-├─ case1.xlsx
-├─ case2.xlsx
-├─ case3.xlsx
-├─ case4.xlsx
-├─ case5.xlsx
-├─ experiment.png
-├─ pom.xml
 ├─ result
 │  ├─ 00_case1
 │  │  ├─ NSGAII

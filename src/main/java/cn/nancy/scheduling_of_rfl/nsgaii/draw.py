@@ -47,12 +47,11 @@ def readScatterData(path):
         for line in f.readlines():
             datas = json.loads(line)
             for data in datas:
-                TotalDelay.append(datas[data][0])
-                Utilization.append(datas[data][1])
-    # for map in data:
-    #     TotalDelay.append(data[map][0])
-    #     Utilization.append(data[map][1])
-
+                # if datas[data][0] not in TotalDelay:
+                    TotalDelay.append(datas[data][0])
+                # if datas[data][1] not in Utilization:
+                    Utilization.append(datas[data][1])
+                
     return TotalDelay, Utilization
 
 """甘特图绘制，输入：
@@ -125,172 +124,165 @@ def DrawGantt(S_table, F_table, Setup_S, Setup_F, ConfigurationCode, SortCode, t
 if __name__ == '__main__':
 
     """"""
+    # %% 输出所有配置方案
+    GanttDict = {}
+    index = 1
+    with open("E:\\JavaProjects\\scheduling_of_rfl\\result\\case_time20\\NSGAII_2\\GantteData.txt") as f:
+        for line in f:
+            data = json.loads(line)
+            _, _, _, _, _, ConfigurationCode, _, TotalDelay, Utilization = readtimetable(data)
+            print('%d;\t%d (RMT: %s);%.3f;%d' % (index, len(ConfigurationCode), str(ConfigurationCode), Utilization, TotalDelay))
+            index += 1
+
+    
     # %% 画甘特图
-    with open("E:\\JavaProjects\\scheduling_of_rfl\\result\\00_case2_time2\\NSGAII\\1.txt", "r") as f:
+    with open("E:\\JavaProjects\\scheduling_of_rfl\\result\\case_time20\\NSGAII_2\\GantteData.txt", "r") as f:
         index = 1
         for line in f:
-            timetable = json.loads(line)
-            S_table, F_table, Processing, Setup_S, Setup_F, ConfigurationCode, SortCode, TotalDelay, Utilization = readtimetable(timetable)
-            fig = DrawGantt(
-                S_table, F_table, Setup_S, Setup_F, ConfigurationCode, SortCode,
-                ("The delay time is %d minutes and the utilization is %.4f%%" % (TotalDelay, Utilization))     # 甘特图标题
-            )
-            print('%d:\t %d minutes, %.4f%%' % (index, TotalDelay, Utilization))
+            if [2,3,4,5,9,8].count(index)>0:
+                timetable = json.loads(line)
+                S_table, F_table, Processing, Setup_S, Setup_F, ConfigurationCode, SortCode, TotalDelay, Utilization = readtimetable(timetable)
+                fig = DrawGantt(
+                    S_table, F_table, Setup_S, Setup_F, ConfigurationCode, SortCode,
+                    ("The delay time is %d minutes and the utilization is %.4f%%" % (TotalDelay, Utilization))     # 甘特图标题
+                )
+                print('%d:\t %d minutes, %.4f%%' % (index, TotalDelay, Utilization))
+                fig.update_traces(textposition='inside')
+                fig.update_yaxes(autorange="reversed")
+                fig.update_layout(legend=dict(
+                    orientation="h",    # 开启水平显示
+                ))
+                fig.show()
             index += 1
-            fig.update_traces(textposition='inside')
-            fig.update_yaxes(autorange="reversed")
-            fig.update_layout(legend=dict(
-                orientation="h",    # 开启水平显示
-            ))
-            fig.show()
 
     # %% 画散点图
-    # p = "E:\\JavaProjects\\zhengnanxi\\scheduling_of_rfl\\result\\case1_time1\\NSGAII"
-    # allTotalDelay, allUtilization = readScatterData(p + "\\archiveObj.txt")
-    # TotalDelay, Utilization = readScatterData(p + "\\ParetoFront.txt")
-    # # with open(p + "\\archiveObj.txt") as f:
-    # #     lines = f.readlines()
-    # #     line = lines[0]
-    # #     scatterData = json.loads(line)
-    # #     allTotalDelay, allUtilization = readScatterData(scatterData)
-    # # with open(p + "\\ParetoFront.txt") as f:
-    # #     lines = f.readlines()
-    # #     line = lines[0]
-    # #     scatterData = json.loads(line)
-    # #     TotalDelay, Utilization = readScatterData(scatterData)
-    # fig = plt.figure(1, figsize=(4,3.8))
-    # plt.rcParams['font.sans-serif'] = ['SimHei'] #显示中文
+    p = "E:\\JavaProjects\\scheduling_of_rfl\\result\\case_time1\\NSGAII_2"
+    # allTotalDelay, allUtilization = readScatterData(p + "\\popObj.txt")
+    TotalDelay, Utilization = readScatterData(p + "\\ParetoFront.txt")
+    TotalDelay.sort()
+    Utilization.sort()
+    fig = plt.figure(1, figsize=(4,4))
+    plt.rcParams['font.sans-serif'] = ['SimHei'] #显示中文
     # plt.scatter(allTotalDelay, allUtilization, s=15, label='种群解')
-    # plt.scatter(TotalDelay, Utilization, color='C1', s=20, label='Pareto解')
-    # plt.xlabel("总拖期时间/min", fontdict={'size': 12}, fontproperties='SimHei')
-    # plt.ylabel("平均设备利用率/%", fontdict={'size': 12}, fontproperties='SimHei')
-    # plt.title("算法解散点图", fontdict={'size': 14}, fontproperties='SimHei')
+    plt.scatter(TotalDelay, Utilization, color='C1', s=20)
+    plt.xlabel("total delay/min", fontdict={'size': 12}, fontproperties='SimHei')
+    plt.ylabel("average utilization/%", fontdict={'size': 12}, fontproperties='SimHei')
     # plt.legend(loc='best')
-    # plt.grid()
-    # plt.savefig(p + "\\解散点图.png", format='png')
+    plt.grid()
+    plt.savefig(p + "\\解散点图.png", format='png')
 
 
-    # # %% 画全局解散点图和pareto散点图
-    # allTotalDelay, allUtilization = readScatterData(p + "\\archiveObj.txt")
-    # TotalDelay, Utilization = readScatterData(p + "\\ParetoFront.txt")
-    # # with open(p + "\\archiveObj.txt") as f:
-    # #     lines = f.readlines()
-    # #     line = lines[0]
-    # #     scatterData = json.loads(line)
-    # #     allTotalDelay, allUtilization = readScatterData(scatterData)
-    # # with open(p + "\\ParetoFront.txt") as f:
-    # #     lines = f.readlines()
-    # #     line = lines[0]
-    # #     scatterData = json.loads(line)
-    # #     TotalDelay, Utilization = readScatterData(scatterData)
-    # fig = plt.figure(constrained_layout=True, figsize=(8,5))
-    # # plt.rcParams['font.sans-serif'] = ['SimHei'] #显示中文
-    # gs = fig.add_gridspec(2, 3)
-    # # 全局解
-    # ax1 = fig.add_subplot(gs[0:,0:2])
-    # ax1.scatter(allTotalDelay, allUtilization, s=30, color='C0', label='population')
-    # ax1.scatter(TotalDelay, Utilization, color='C1', s=20, label='Pareto solution')
-    # ax1.tick_params(labelsize=14)
-    # # ax1.set_xlabel("总拖期时间/min", fontdict={'size': 12}, fontproperties='SimHei')
-    # # ax1.set_ylabel("平均设备利用率/%", fontdict={'size': 12}, fontproperties='SimHei')
-    # ax1.set_xlabel("total delay/min", fontdict={'size': 15})
-    # ax1.set_ylabel("average utilization/%", fontdict={'size': 15})
-    # ax1.legend(loc=3, fontsize=14, edgecolor='C0', facecolor='0.6', framealpha=0.3, handletextpad=0, labelspacing=0.2, borderpad=0.2)
-    # ax1.spines['top'].set_visible(False)
-    # ax1.spines['left'].set_visible(False)
-    # ax1.spines['bottom'].set_visible(False)
-    # ax1.spines['right'].set_visible(False)
-    # ax1.grid()
-    # # pareto
-    # ax2 = fig.add_subplot(gs[1,2])
-    # ax2.scatter(TotalDelay, Utilization, color='C1', s=5)
-    # ax2.tick_params(labelsize=14)
-    # ax2.yaxis.set_ticks_position('right')
-    # # ax2.spines['top'].set_visible(False)
-    # # ax2.spines['left'].set_visible(False)
-    # # ax2.spines['bottom'].set_visible(False)
-    # # ax2.spines['right'].set_visible(False)
-    # ax2.grid()
-    # # text
-    # ax3 = fig.add_subplot(gs[0,2])
-    # ax3.text(
-    #     0.051, 0.6, '%d non-dominated \n(pareto) solutions' % len(TotalDelay), fontsize=15,
-    # )
-    # ax3.axis(False)
-    # ax3.set_position([0.68, 0.55, 0.32, 0.5])
-    # con = ConnectionPatch(
-    #     xyA=(125000, 79),coordsA=ax1.transData,
-    #     xyB=(0.5, 0),coordsB=ax3.transData,
-    #     arrowstyle="Fancy, head_length=.6, head_width=.6, tail_width=.8", connectionstyle="arc3, rad=-0.3",
-    #     facecolor="C1", edgecolor="C1",
-    # )
-    # fig.add_artist(con)
-    # # plt.show()
-    # plt.savefig("Double column scatter chart.png", format='png')
-
-
-    # # %% 画迭代曲线图
-    # utilization = []
-    # totaldelay = []
-    # toptotaldelay = []
-    # toputilization = []
-    # bottomtotaldelay = []
-    # bottomutilization = []
-
-    # with open(p + "\\uOfA.txt") as f:
-    #     for line in f.readlines():
-    #         utilization.append(json.loads(line))
-    # with open(p + "\\tOfA.txt") as f:
-    #     for line in f.readlines():
-    #         totaldelay.append(json.loads(line))
-    # with open(p + "\\topuOfA.txt") as f:
-    #     for line in f.readlines():
-    #         toputilization.append(json.loads(line))
-    # with open(p + "\\bottomtOfA.txt") as f:
-    #     for line in f.readlines():
-    #         bottomtotaldelay.append(json.loads(line))
-    # with open(p + "\\bottomuOfA.txt") as f:
-    #     for line in f.readlines():
-    #         bottomutilization.append(json.loads(line))
-    # with open(p + "\\toptOfA.txt") as f:
-    #     for line in f.readlines():
-    #         toptotaldelay.append(json.loads(line))
-    # fig = plt.figure(2, figsize=(4,2))
-    # # plt.rcParams['font.sans-serif'] = ['SimHei'] #显示中文
-    # # 绘制利用率
-    # ax1 = fig.add_subplot(111)
-    # line1 = ax1.plot(range(0,len(utilization)), utilization, color='C0', linestyle='--',label="average utilization")
-    # line2 = ax1.plot(range(0,len(toputilization)), toputilization, color='C0', label="optimum utilization")
-    # # line1 = ax1.plot(range(0,len(utilization)), utilization, color='grey', linestyle='--',label="average utilization")
-    # # line2 = ax1.plot(range(0,len(toputilization)), toputilization, color='grey', label="optimum utilization")
-    # # ax1.fill_between(range(0,len(toputilization)), toputilization, bottomutilization, color='C0', alpha=.3, linewidth=0)
-    # ax1.set_ylabel('average utilization/%', fontsize=10)
-    # ax1.set_xlabel('iteration', fontsize=10)
-    # ax1.tick_params(labelsize=9)
-    # # ax1.legend(loc='best', handletextpad=0.2, labelspacing=0.2, borderpad=0.5)
-    # # 绘制延期时间
-    # ax2 = ax1.twinx()
-    # line3 = ax2.plot(range(0,len(totaldelay)), totaldelay, color='C1', linestyle='--', label="average total delay")
-    # line4 = ax2.plot(range(0,len(bottomtotaldelay)), bottomtotaldelay, color='C1', label="optimal total delay")
-    # # line3 = ax2.plot(range(0,len(totaldelay)), totaldelay, color='black', linestyle='--', label="average total delay")
-    # # line4 = ax2.plot(range(0,len(bottomtotaldelay)), bottomtotaldelay, color='black', label="optimal total delay")
-    # # ax2.fill_between(range(0,len(toptotaldelay)), toptotaldelay, bottomtotaldelay, color='C1', alpha=.3, linewidth=0)
-    # ax2.set_ylabel('total delay/min', fontsize=10)
-    # ax2.tick_params(labelsize=9)
-    # plt.ticklabel_format(style='sci',scilimits=(0,0), axis='both', useMathText=True)
-    # # 合并图例
-    # lines = line1 + line2 + line3 + line4
-    # labels = [l.get_label() for l in lines]
-    # # ax2.legend(loc='best', handletextpad=0.2, labelspacing=0.2, borderpad=0.5)
-    # ax1.legend(
-    #     lines, labels, ncol=2,
-    #     handlelength=1.5, handletextpad=0.2, labelspacing=0.2, borderpad=0.5, columnspacing=0.5, borderaxespad=1,
-    #     fontsize=9, 
-    #     loc='center', bbox_to_anchor=(0.5, 0.75)
-    # )
-    # # plt.title('迭代曲线图')
-    # plt.savefig(p + "\\迭代曲线图.png", format='png')
+    # %% 画全局解散点图和pareto散点图
+    allTotalDelay, allUtilization = readScatterData(p + "\\popObj.txt")
+    TotalDelay, Utilization = readScatterData(p + "\\ParetoFront.txt")
+    fig = plt.figure(constrained_layout=True, figsize=(8,5))
+    # plt.rcParams['font.sans-serif'] = ['SimHei'] #显示中文
+    gs = fig.add_gridspec(2, 3)
+    # 全局解
+    ax1 = fig.add_subplot(gs[0:,0:2])
+    ax1.scatter(allTotalDelay, allUtilization, s=30, color='C0', label='population')
+    ax1.scatter(TotalDelay, Utilization, color='C1', s=20, label='Pareto solution')
+    ax1.tick_params(labelsize=14)
+    # ax1.set_xlabel("总拖期时间/min", fontdict={'size': 12}, fontproperties='SimHei')
+    # ax1.set_ylabel("平均设备利用率/%", fontdict={'size': 12}, fontproperties='SimHei')
+    ax1.set_xlabel("total delay/min", fontdict={'size': 15})
+    ax1.set_ylabel("average utilization/%", fontdict={'size': 15})
+    ax1.legend(loc=3, fontsize=14, edgecolor='C0', facecolor='0.6', framealpha=0.3, handletextpad=0, labelspacing=0.2, borderpad=0.2)
+    ax1.spines['top'].set_visible(False)
+    ax1.spines['left'].set_visible(False)
+    ax1.spines['bottom'].set_visible(False)
+    ax1.spines['right'].set_visible(False)
+    ax1.grid()
+    # pareto
+    ax2 = fig.add_subplot(gs[1,2])
+    ax2.scatter(TotalDelay, Utilization, color='C1', s=5)
+    ax2.tick_params(labelsize=14)
+    ax2.yaxis.set_ticks_position('right')
+    # ax2.spines['top'].set_visible(False)
+    # ax2.spines['left'].set_visible(False)
+    # ax2.spines['bottom'].set_visible(False)
+    # ax2.spines['right'].set_visible(False)
+    ax2.grid()
+    # text
+    ax3 = fig.add_subplot(gs[0,2])
+    ax3.text(
+        0.051, 0.6, '%d non-dominated \n(pareto) solutions' % len(TotalDelay), fontsize=15,
+    )
+    ax3.axis(False)
+    ax3.set_position([0.68, 0.55, 0.32, 0.5])
+    con = ConnectionPatch(
+        xyA=(125000, 79),coordsA=ax1.transData,
+        xyB=(0.5, 0),coordsB=ax3.transData,
+        arrowstyle="Fancy, head_length=.6, head_width=.6, tail_width=.8", connectionstyle="arc3, rad=-0.3",
+        facecolor="C1", edgecolor="C1",
+    )
+    fig.add_artist(con)
     # plt.show()
+    plt.savefig("Double column scatter chart.png", format='png')
+
+
+    # %% 画迭代曲线图
+    utilization = []
+    totaldelay = []
+    toptotaldelay = []
+    toputilization = []
+    bottomtotaldelay = []
+    bottomutilization = []
+
+    with open(p + "\\uOfA.txt") as f:
+        for line in f.readlines():
+            utilization.append(json.loads(line))
+    with open(p + "\\tOfA.txt") as f:
+        for line in f.readlines():
+            totaldelay.append(json.loads(line))
+    with open(p + "\\topuOfA.txt") as f:
+        for line in f.readlines():
+            toputilization.append(json.loads(line))
+    with open(p + "\\bottomtOfA.txt") as f:
+        for line in f.readlines():
+            bottomtotaldelay.append(json.loads(line))
+    with open(p + "\\bottomuOfA.txt") as f:
+        for line in f.readlines():
+            bottomutilization.append(json.loads(line))
+    with open(p + "\\toptOfA.txt") as f:
+        for line in f.readlines():
+            toptotaldelay.append(json.loads(line))
+    fig = plt.figure(2, figsize=(4,2))
+    # plt.rcParams['font.sans-serif'] = ['SimHei'] #显示中文
+    # 绘制利用率
+    ax1 = fig.add_subplot(111)
+    line1 = ax1.plot(range(0,len(utilization)), utilization, color='C0', linestyle='--',label="average utilization")
+    line2 = ax1.plot(range(0,len(toputilization)), toputilization, color='C0', label="optimum utilization")
+    # line1 = ax1.plot(range(0,len(utilization)), utilization, color='grey', linestyle='--',label="average utilization")
+    # line2 = ax1.plot(range(0,len(toputilization)), toputilization, color='grey', label="optimum utilization")
+    # ax1.fill_between(range(0,len(toputilization)), toputilization, bottomutilization, color='C0', alpha=.3, linewidth=0)
+    ax1.set_ylabel('average utilization/%', fontsize=10)
+    ax1.set_xlabel('iteration', fontsize=10)
+    ax1.tick_params(labelsize=9)
+    # ax1.legend(loc='best', handletextpad=0.2, labelspacing=0.2, borderpad=0.5)
+    # 绘制延期时间
+    ax2 = ax1.twinx()
+    line3 = ax2.plot(range(0,len(totaldelay)), totaldelay, color='C1', linestyle='--', label="average total delay")
+    line4 = ax2.plot(range(0,len(bottomtotaldelay)), bottomtotaldelay, color='C1', label="optimal total delay")
+    # line3 = ax2.plot(range(0,len(totaldelay)), totaldelay, color='black', linestyle='--', label="average total delay")
+    # line4 = ax2.plot(range(0,len(bottomtotaldelay)), bottomtotaldelay, color='black', label="optimal total delay")
+    # ax2.fill_between(range(0,len(toptotaldelay)), toptotaldelay, bottomtotaldelay, color='C1', alpha=.3, linewidth=0)
+    ax2.set_ylabel('total delay/min', fontsize=10)
+    ax2.tick_params(labelsize=9)
+    plt.ticklabel_format(style='sci',scilimits=(0,0), axis='both', useMathText=True)
+    # 合并图例
+    lines = line1 + line2 + line3 + line4
+    labels = [l.get_label() for l in lines]
+    # ax2.legend(loc='best', handletextpad=0.2, labelspacing=0.2, borderpad=0.5)
+    ax1.legend(
+        lines, labels, ncol=2,
+        handlelength=1.5, handletextpad=0.2, labelspacing=0.2, borderpad=0.5, columnspacing=0.5, borderaxespad=1,
+        fontsize=9, 
+        loc='center', bbox_to_anchor=(0.5, 0.75)
+    )
+    # plt.title('迭代曲线图')
+    plt.savefig(p + "\\迭代曲线图.png", format='png')
+    plt.show()
 
     
 

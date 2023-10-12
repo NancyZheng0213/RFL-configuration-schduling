@@ -84,7 +84,7 @@ public class MOEA extends Algorithm {
         // 权重初始均匀分布
         this.weightList = new ArrayList<double[]>(H + 1);
         for (int i = 0; i < popsize; i++) {
-            double[] weight = new double[] { i / H, (H - i) / H };
+            double[] weight = new double[] { i / (double)H, (H - i) / (double)H };
             this.weightList.add(i, weight);
         }
         // 计算任意两个权重向量之间的欧几里得距离
@@ -99,32 +99,56 @@ public class MOEA extends Algorithm {
         this.B = new ArrayList<ArrayList<Integer>>();
         this.B.ensureCapacity(popsize);
         for (int i = 0; i < popsize; i++) {
-            ArrayList<Integer> index = new ArrayList<>(this.T);
-            for (int j = 0; j < this.T; j++)
-                index.add(j);
-            index.ensureCapacity(this.T);
-            for (int j = 0; j < popsize && i != j; j++) {
-                for (int k1 = 0; k1 < this.T; k1++) {
-                    if (distance[i][j] < distance[i][index.get(k1)]) {
-                        if (index.contains(j)) {
-                            for (int k3 = index.indexOf(j); k3 < this.T - 1; k3++) {
-                                index.set(k3, index.get(k3 + 1));
+            ArrayList<Integer> IndexForI = new ArrayList<>(this.T);
+            IndexForI.ensureCapacity(this.T);
+            for (int index = 0; IndexForI.size() < this.T; index++) {
+                if (i != index) {
+                    IndexForI.add(index);
+                }
+            };
+            for (int index = 0; index < popsize; index++) {
+                if (i != index) {
+                    for (int k1 = 0; k1 < this.T; k1++) {
+                        if (distance[i][index] < distance[i][IndexForI.get(k1)]) {
+                            if (IndexForI.contains(index)) {
+                                if (IndexForI.indexOf(index) < k1) {
+                                    IndexForI.remove((Integer)index);
+                                    IndexForI.add(k1-1, index);
+                                } else {
+                                    IndexForI.remove((Integer)index);
+                                    IndexForI.add(k1, index);
+                                }
+                            } else {
+                                IndexForI.remove(IndexForI.size()-1);
+                                IndexForI.add(k1, index);
                             }
+                            break;
                         }
-                        for (int k2 = this.T - 1; k2 > k1; k2--) {
-                            index.set(k2, index.get(k2 - 1));
-                        }
-                        index.set(k1, j);
-                        break;
                     }
+                } else {
+                    continue;
                 }
             }
-            this.B.add(i, index);
+            this.B.add(i, IndexForI);
         }
         PopofMOEA pop = new PopofMOEA(popsize);
-        pop.encode(popsize, qus.getMachine(), qus.getProcessNum(), qus.getProcess(), qus.getAlternativeMachine());
+        pop.encode(qus.getPartsNum(), qus.getMachine(), qus.getProcessNum(), qus.getProcess(), qus.getAlternativeMachine());
         pop.decode(qus.getMachineTime(), qus.getDemand(), qus.getSetupTime(), qus.getDueDays());
         super.setPop(pop);
+        // 初始化 FV
+        this.FV = new ArrayList<>();
+        for (int i = 0; i < popsize; i++) {
+            Decode decode = pop.getIndividual(i).getDecode();
+            double[] objectives = new double[this.getObjectiveNum()];
+            int j = 0;
+            Iterator<Map.Entry<String, OBJECTIVE>> iterator = this.objective.entrySet().iterator();
+            while (iterator.hasNext()) {
+                Map.Entry<String, OBJECTIVE> entry = iterator.next();
+                objectives[j] = decode.getObjectiveValue(entry.getKey());
+                j++;
+            }
+            this.FV.add(objectives);
+        }
         // 初始化 Z
         this.Z = new HashMap<String, Double>(2);
         for (HashMap.Entry<String, OBJECTIVE> entry : this.objective.entrySet()) {
@@ -211,30 +235,22 @@ public class MOEA extends Algorithm {
             if (y2[i] < Min2) Min2 = y2[i];
         }
         // 更新 Z
-        for (Map.Entry<String, OBJECTIVE> obj : this.objective.entrySet()) {
-            String ObjectiveName = obj.getKey();
-            for (int i = 0; i < popsize; i++) {
-                double value = ChildPop.getIndividual(i).getDecode().getObjectiveValue(ObjectiveName);
-                if (obj.getValue() == OBJECTIVE.MAX) {
-                    if (value > this.Z.get(ObjectiveName)) this.Z.put(ObjectiveName, value);
-                } else {
-                    if (value < this.Z.get(ObjectiveName)) this.Z.put(ObjectiveName, value);
-                }
-            }
-        }
+        this.Z.put("Utilization", MAXUtilization);
+        this.Z.put("TotalDelay", MINTotalDelay);
         // 计算 gte
         for (int i = 0; i < popsize; i++) {
             IndividualofMOEA individual = ChildPop.getIndividual(i);
-            this.FV.set(i, new double[]{individual.getDecode().getUtilization(), individual.getDecode().getTotalDelay()});
             for (int j : this.B.get(i)) {
                 double GteX = Math.max(this.weightList.get(j)[0]*Math.abs(x1[j] - Max1), this.weightList.get(j)[1]*Math.abs(x2[j] - Min2));
                 double GteY = Math.max(this.weightList.get(j)[0]*Math.abs(y1[i] - Max1), this.weightList.get(j)[1]*Math.abs(y2[i] - Min2));
                 if (GteY <= GteX) {
                     super.getPop().setIndividual(j, individual);
+                    this.FV.set(j, new double[]{individual.getDecode().getUtilization(), individual.getDecode().getTotalDelay()});
                 }
             }
             // 更新 EP，移除被 y 支配的向量；如果无支配 y 的向量，则把 y 加入 EP 中
-            Iterator<IndividualofMOEA> EPiterator = this.EP.iterator();
+            ArrayList<IndividualofMOEA> copyEP = new ArrayList<>(this.EP);
+            Iterator<IndividualofMOEA> EPiterator = copyEP.iterator();
             Boolean flag = false;       // EP 中是否有支配 y 的向量
             while (EPiterator.hasNext()) {
                 IndividualofMOEA EPindividual = EPiterator.next();
@@ -267,8 +283,8 @@ public class MOEA extends Algorithm {
      * @return
      */
     public IndividualofMOEA Variation(Individual individual1, Individual individual2, Qus qus) {
-        IndividualofMOEA parent1 = new IndividualofMOEA((IndividualofMOEA) individual1);
-        IndividualofMOEA parent2 = new IndividualofMOEA((IndividualofMOEA) individual2);
+        IndividualofMOEA parent1 = new IndividualofMOEA(individual1);
+        IndividualofMOEA parent2 = new IndividualofMOEA(individual2);
         IndividualofMOEA child = new IndividualofMOEA(parent1);
         // 排序编码的交叉
         ArrayList<ArrayList<Integer>> sortingList = new ArrayList<>(
@@ -279,7 +295,7 @@ public class MOEA extends Algorithm {
         // 对配置编码和操作编码进行变异搜索
         List<Individual> childlist = VNS(child, qus);
 
-        return (IndividualofMOEA) childlist.get(new Random().nextInt(childlist.size()));
+        return new IndividualofMOEA(childlist.get(new Random().nextInt(childlist.size())));
     }
 
     /**

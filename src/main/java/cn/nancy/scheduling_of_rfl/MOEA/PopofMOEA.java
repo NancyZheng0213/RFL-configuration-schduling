@@ -1,8 +1,6 @@
 package cn.nancy.scheduling_of_rfl.MOEA;
 
-import java.util.ArrayList;
-import java.util.Map;
-
+import cn.nancy.scheduling_of_rfl.Individual;
 import cn.nancy.scheduling_of_rfl.Pop;
 
 public class PopofMOEA extends Pop {
@@ -26,6 +24,16 @@ public class PopofMOEA extends Pop {
      */
     public void setIndividual(int i, IndividualofMOEA individual) {
         super.setIndividual(i, individual);
+    }
+    public void setIndividual(int i, Individual individual) {
+        if (IndividualofMOEA.class.isInstance(individual)) {
+            super.setIndividual(i, individual);
+        } else {
+            IndividualofMOEA newindividual = new IndividualofMOEA();
+            newindividual.setCode(individual.getCode());
+            newindividual.setDecode(individual.getDecode());
+            super.setIndividual(i, newindividual); 
+        }
     }
     /**
      * deep copy the <i>i</i>th individual

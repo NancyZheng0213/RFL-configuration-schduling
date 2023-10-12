@@ -71,21 +71,21 @@ def readLineData(path):
     return utilization, totaldelay, toputilization, toptotaldelay, bottomutilization, bottomtotaldelay
 
 if __name__ == '__main__':
-    caselist = [1, 2, 3]
+    caselist = [1, 2, 4]
     casenum = len(caselist)
-    algorithemlist = ["NSGAII", "SPEA2_2"]
-    legendlist = ["NSGAII", "SPEA2"]
+    algorithemlist = ["NSGAII_2", "SPEA2_2", "MOEA"]
+    legendlist = ["NSGAII", "SPEA2", "MOEA/D"]
     titlelist = ["Total Delay", "Utilization"]
-    colorlist = ['C0', 'C1']
+    colorlist = ['C0', 'C1', 'C3']
     markerlist = ['x', '+', '1', 4]
-    linelist = ['-', '--']
+    linelist = ['-', '--', '-.']
     ylabellist = ['delay/min', 'utilization/%']
     legend_elements = [Line2D(
         [0], [0], color=colorlist[i],
         # marker=markerlist[i],
         linestyle=linelist[i],
         label=legendlist[i]
-    ) for i in range(len(colorlist))]
+    ) for i in range(len(algorithemlist))]
     
     fig = plt.figure(1, figsize=(7,3*len(caselist)), constrained_layout=True)
     plt.rcParams['font.sans-serif'] = ['Arial']
@@ -93,19 +93,23 @@ if __name__ == '__main__':
     axs = [[[] for _ in range(3)] for _ in range(2*len(caselist))]
     for caseindex in range(casenum):
         # 前沿面比较
-        path = ("C:\\Users\\24449\\Desktop\\00_case%d" % caselist[caseindex])
-        NSGAIITotalDelay, NSGAIIUtilization = readParetoData(path + "\\NSGAII\\ParetoFront.txt")
+        path = ("E:\\JavaProjects\\scheduling_of_rfl\\result\\00_case%d" % caselist[caseindex])
+        NSGAIITotalDelay, NSGAIIUtilization = readParetoData(path + "\\NSGAII_2\\ParetoFront.txt")
         SPEA2TotalDelay, SPEA2Utilization = readParetoData(path + "\\SPEA2_2\\ParetoFront.txt")
+        MOEATotalDelay, MOEAUtilization = readParetoData(path + "\\MOEA\\ParetoFront.txt")
         NSGAIITotalDelay.sort()
         NSGAIIUtilization.sort()
         SPEA2TotalDelay.sort()
         SPEA2Utilization.sort()
-        boxdata = [[np.array(NSGAIITotalDelay), np.array(SPEA2TotalDelay)], [NSGAIIUtilization, SPEA2Utilization]]
+        MOEATotalDelay.sort()
+        MOEAUtilization.sort()
+        boxdata = [[np.array(NSGAIITotalDelay), np.array(SPEA2TotalDelay), np.array(MOEATotalDelay)], [NSGAIIUtilization, SPEA2Utilization, MOEAUtilization]]
 
         axs[2*caseindex][0] = fig.add_subplot(spec[2*caseindex:2*caseindex+2, 0])
         axs[2*caseindex][0].set_title("title", color='w', fontsize=10)
-        axs[2*caseindex][0].plot(NSGAIITotalDelay, NSGAIIUtilization, marker='^', markersize='6', markerfacecolor='w', ls='-', label='NSGAII')
-        axs[2*caseindex][0].plot(SPEA2TotalDelay, SPEA2Utilization, marker='o', markersize='6', markerfacecolor='w', ls='--', label='SPEA2')
+        axs[2*caseindex][0].plot(NSGAIITotalDelay, NSGAIIUtilization, marker='^', markersize='6', markerfacecolor='w', ls=linelist[0], label=legendlist[0])
+        axs[2*caseindex][0].plot(SPEA2TotalDelay, SPEA2Utilization, marker='o', markersize='6', markerfacecolor='w', ls=linelist[1], label=legendlist[1])
+        axs[2*caseindex][0].plot(MOEATotalDelay, MOEAUtilization, marker='*', markersize='6', markerfacecolor='w', ls=linelist[2], label=legendlist[2])
         plt.xlabel("total delay/min", fontdict={'size': 12}, fontproperties='Arial')
         plt.ylabel("average utilization/%", fontdict={'size': 12}, fontproperties='Arial')
         plt.legend(loc='best', fontsize=9)
@@ -158,5 +162,5 @@ if __name__ == '__main__':
         divider.add_auto_adjustable_area(axs[2*caseindex][0], pad=0)
         
     
-    plt.savefig("C:\\Users\\24449\\Desktop\\Compare.jpg", format='jpg', dpi=300)
+    # plt.savefig("C:\\Users\\24449\\Desktop\\Compare1.jpg", format='jpg', dpi=300)
     plt.show()

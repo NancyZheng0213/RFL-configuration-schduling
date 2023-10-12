@@ -1,6 +1,8 @@
 package cn.nancy.scheduling_of_rfl.nsgaii;
 
 import java.util.ArrayList;
+
+import cn.nancy.scheduling_of_rfl.Individual;
 import cn.nancy.scheduling_of_rfl.Pop;
 
 /**
@@ -12,8 +14,9 @@ public class PopofNSGAII extends Pop{
     //  */
     // private IndividualofNSGAII[] individuals;
     
-    /*
-     * initialization of population
+    /**
+     * inital pop
+     * @param popsize
      */
     public PopofNSGAII(int popsize) {
         super(popsize);
@@ -70,6 +73,16 @@ public class PopofNSGAII extends Pop{
      */
     public void setIndividual(int i, IndividualofNSGAII individual) {
         super.setIndividual(i, individual); 
+    }
+    public void setIndividual(int i, Individual individual) {
+        if (IndividualofNSGAII.class.isInstance(individual)) {
+            setIndividual(i, individual);
+        } else {
+            IndividualofNSGAII newindividual = new IndividualofNSGAII();
+            newindividual.setCode(individual.getCode());
+            newindividual.setDecode(individual.getDecode());
+            super.setIndividual(i, newindividual); 
+        }
     }
     /**
      * deep copy the <i>i</i>th individual

@@ -180,7 +180,7 @@ public class AllInSPEA2 implements Callable<String> {
             // System.out.println("iteration " + (iter+1) + "\t\tbest total delay: " + bottomtOfA + "\t\tbest utilization: " + topuOfA);
             if (! speaii.TerminateIteration(this.lastiteration)) {
             	if (this.lastiteration % 10 == 0) {
-            		System.out.println("\033[32mSPEA2" + " \t\t\t\033[0miteration "
+            		System.out.println("\033[32mSPEA2" + " \t\t\033[0miteration "
                     + this.lastiteration + "\t\tbest total delay: " + bottomtOfA + "\t\tbest utilization: " + topuOfA);
 				}
                 this.lastiteration++;
@@ -188,7 +188,7 @@ public class AllInSPEA2 implements Callable<String> {
                 break;
             }
             // 选择交叉变异
-            speaii.Variation(p.substring(p.length() - 1), speaii.getarchive(), qus);  // 需要注意，此处的pop均为浅拷贝
+            speaii.setPop(speaii.Variation(p.substring(p.length() - 1), speaii.getarchive(), qus));
             speaii.getpop().decode(qus.getMachineTime(), qus.getDemand(), qus.getSetupTime(), qus.getDueDays());
         }
 

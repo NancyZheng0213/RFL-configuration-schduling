@@ -212,7 +212,6 @@ public class NSGAII extends Algorithm{
         IndividualofNSGAII individual1 = (IndividualofNSGAII) super.getPop().getIndividual(Fset.get(0));
         IndividualofNSGAII individual2 = (IndividualofNSGAII) super.getPop().getIndividual(Fset.get(Fset.size()-1));
         individual1.setD(Double.MAX_VALUE);
-        // TODO: 检查更新 D 之后，原有的 pop 是否也随着跟新了 D
         individual2.setD(Double.MAX_VALUE);
         if (minT == maxT) {
             for (int i = 1; i < Fset.size()-1; i++) {
@@ -323,8 +322,8 @@ public class NSGAII extends Algorithm{
             }
             // 交配池中每个个体采用邻域搜索，对配置编码和操作编码进行变异搜索
             if (new Random().nextDouble() < this.pmv) {
-                ArrayList VNSlist = VNS(childPop.getIndividual(i), qus);
-                childPop.setIndividual(i, (IndividualofNSGAII)VNSlist.get(new Random().nextInt(VNSlist.size())));
+                ArrayList<Individual> VNSlist = VNS(childPop.getIndividual(i), qus);
+                childPop.setIndividual(i, VNSlist.get(new Random().nextInt(VNSlist.size())));
             }
         }
 
@@ -424,8 +423,10 @@ public class NSGAII extends Algorithm{
         PopofNSGAII MatingPool = MatingSelection(popsize);               // 记录配置和操作编码变化的个体
         // VNS
         for (int i = 0; i < popsize; i++) {
-            ArrayList VNSlist = VNS(childPop.getIndividual(i), qus);
-            MatingPool.setIndividual(i, (IndividualofNSGAII)VNSlist.get(new Random().nextInt(VNSlist.size())));
+            if (new Random().nextDouble() < this.pmv) {
+                ArrayList<Individual> VNSlist = VNS(MatingPool.getIndividual(i), qus);
+                MatingPool.setIndividual(i, VNSlist.get(new Random().nextInt(VNSlist.size())));
+            }
         }
         // 子代随机选择，两两进行排序编码的交叉
         for (int i = 0; i < popsize-1; i=i+2) {
@@ -451,8 +452,10 @@ public class NSGAII extends Algorithm{
         }
         // 对交叉后的每个个体的排序编码执行反转突变
         for (int i = 0; i < popsize; i++) {
-            IndividualofNSGAII child = new IndividualofNSGAII(childPop.getIndividual(i));
-            childPop.getIndividual(i).setCode(SwapMutation(child.getCode()));
+            if (new Random().nextDouble() < this.pms) {
+                IndividualofNSGAII child = new IndividualofNSGAII(childPop.getIndividual(i));
+                childPop.getIndividual(i).setCode(SwapMutation(child.getCode()));
+            }
         }
 
         return childPop;
@@ -541,7 +544,7 @@ public class NSGAII extends Algorithm{
         for (ArrayList<Integer> arrayList : this.F) {
             if (popsize - count >= arrayList.size()) {
                 for (int i = 0; i < arrayList.size() && count < popsize; i++) {
-                    childPop.deepsetIndividual(count, super.getPop().getIndividual(arrayList.get(i)));
+                    childPop.deepsetIndividual(count, (IndividualofNSGAII)super.getPop().getIndividual(arrayList.get(i)));
                     count++;
                 }
             } else {

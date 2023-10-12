@@ -16,6 +16,7 @@ public class Pop {
 
     public Pop(int popsize) {
         this.popsize = popsize;
+        this.individuals = new Individual[popsize];
     }
 
     /**

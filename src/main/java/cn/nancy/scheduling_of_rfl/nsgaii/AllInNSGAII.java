@@ -3,6 +3,7 @@ package cn.nancy.scheduling_of_rfl.nsgaii;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 
 import cn.nancy.scheduling_of_rfl.*;
 
@@ -23,6 +24,10 @@ public class AllInNSGAII implements Callable<String> {
      * 记录最佳 utilization，单位：%
      */
     public double bestutilization;
+    /**
+     * 记录最终 Pareto 解数量
+     */
+    public int solutionNUM;
 
     Qus qus;
     private String p;
@@ -47,6 +52,7 @@ public class AllInNSGAII implements Callable<String> {
         this.lastiteration = 0;
         this.besttotaldelay = Double.MAX_VALUE;
         this.bestutilization = 0;
+        this.solutionNUM = 0;
         this.qus = qus;
         this.p = p;
         this.MaxIteration = MaxIteration;
@@ -93,7 +99,7 @@ public class AllInNSGAII implements Callable<String> {
             nsgaii.NondominatedRank();
             // Create new offspring population by selecting fronts with highest ranks.
             nsgaii.UpdatePop(popsize);
-            nsgaii.getPop().decode(qus.getMachineTime(), qus.getDemand(), qus.getSetupTime(), qus.getDueDays());
+            // nsgaii.getPop().decode(qus.getMachineTime(), qus.getDemand(), qus.getSetupTime(), qus.getDueDays());
 
             tOfA = 0;
             uOfA = 0;
@@ -131,7 +137,7 @@ public class AllInNSGAII implements Callable<String> {
             besttotaldelay = bottomtOfA;
             bestutilization = topuOfA; 
             if (this.lastiteration % 10 == 0) {
-            	System.out.println("\033[32mNSGAII_" + p.substring(p.length() - 1) + " \t\t\033[0miteration " + this.lastiteration + "\t\tbest total delay: " + bottomtOfA + "\t\tbest utilization: " + topuOfA);
+            	System.out.println("\033[32mNSGAII_" + p.substring(p.length() - 1) + " \t\033[0miteration " + this.lastiteration + "\t\tbest total delay: " + bottomtOfA + "\t\tbest utilization: " + topuOfA);
 			}
             this.lastiteration++;
         }
@@ -147,35 +153,50 @@ public class AllInNSGAII implements Callable<String> {
             objective.add(nsgaii.getPop().getIndividual(i).getDecode().getUtilization());
             DataStore.writefile("{\"" + (i + 1) + "\":" + objective + "}", p + "\\popObj.txt");
             if (nsgaii.getPop().getIndividual(i).getR() == 1) {
-                // objectivMap.put(i + 1, objective);
+                this.solutionNUM++;
                 DataStore.writefile("{\"" + (i + 1) + "\"" + ":" + objective + "}", p + "\\ParetoFront.txt");
                 DataStore.writefile(DataStore.TimetabletoJOSN(nsgaii.getPop().getIndividual(i)), p + "\\GantteData.txt");
             }
             // archiveMap.put(i + 1, objective); 
         }
         
-        // System.out.print("共有" + objectivMap.size() + "个pareto解，");
-        
-        // System.out.print("\033[32mNSGAII\033[0m\t\t程序运行时间：");
         runningtime = endTime - startTime;
-        // long time = (endTime - startTime)/1000;
-        // int s;
-        // String timestrings[] = {" s", " min, ", " h, "};
-        // int timeint[] = new int[3];
-        // for (int i = 0; i < timestrings.length; i++) {
-        //     s = (int)(time % 60);
-        //     timeint[i] = s;
-        //     time = (time - s)/60;
-        // }
-        // for (int i = timeint.length - 1; i >= 0 ; i--) {
-        //     System.out.print(timeint[i] + timestrings[i]);
-        // }
-        // System.out.println("\t\tbest total delay: " + bottomtOfA + "\t\tbest utilization: " + topuOfA);
-
-        // if (!this.isAlive()) {
-        //     System.out.println("\033[33mNSGAII" + p.substring(p.length() - 1) + "\t\t运行时间：" + this.runningtime/1000 + "s  \t迭代代数：" + this.lastiteration + "  \tbest total delay: " + this.besttotaldelay + "  \tbest utilization: " + this.bestutilization + "\033[0m");
-        // }
 
         return "\033[33mNSGAII_" + p.substring(p.length() - 1) + "\t\t运行时间：" + this.runningtime/1000 + "s  \t迭代代数：" + this.lastiteration + "  \tbest total delay: " + this.besttotaldelay + "  \tbest utilization: " + this.bestutilization + "\033[0m";
+    }
+
+    public static void main(String[] args) throws Exception {
+        String instance = "case";
+        String path = "E:\\JavaProjects\\scheduling_of_rfl\\";
+        String filename = path + instance + ".xlsx";
+        String double_hr = String.join("", Collections.nCopies(40, "="));
+        /**
+         * 建立记录数据的文件
+         */
+        DataStore.createNewFile(path + "result\\" + instance + ".csv"); // 创建空文件
+        // 编辑 csv 文件的列标题
+        String ColumnHeading = "iteration,";
+        ColumnHeading += "time,n,bestT,bestU,";
+        DataStore.writecsv(ColumnHeading, path + "result\\" + instance + ".csv");
+        for (int j = 0; j < 2; j++) {
+            String Directorys = instance + "_time" + (j+1);
+            Qus qus = new Qus(filename);
+            System.out.println("\033[31m" + double_hr +"  " + Directorys + ": " + qus.getPartsNum() + " products, " + qus.getProcessNum() + " processes, " + qus.getMachineTypesNum() + " machines  " + double_hr + "\033[0m");
+            String storefile = path + "result\\" + Directorys;
+            AllInNSGAII nsgaii = new AllInNSGAII(qus, storefile + "\\NSGAII_2", 500, 70, 0.8, 0.3, 0.8);
+            try {
+                nsgaii.call();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            }
+
+            System.out.println("\033[34mNSGAII\t\t\t运行时间：" + nsgaii.runningtime/1000 + "s  \t迭代代数：" + nsgaii.lastiteration + "  \tbest total delay: " + nsgaii.besttotaldelay + "  \tbest utilization: " + nsgaii.bestutilization + "\033[0m");
+            String data = (j+1)+",";
+            data += nsgaii.runningtime + "," + nsgaii.solutionNUM + "," + nsgaii.besttotaldelay + "," + nsgaii.bestutilization + ",";
+            DataStore.writecsv(data, path + "result\\" + instance + ".csv");
+            System.out.println();
+        }
     }
 }
